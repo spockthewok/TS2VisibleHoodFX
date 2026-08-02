@@ -51,11 +51,10 @@ they would be extracted to:
 4. Extract both the `.asi` and `.ini` files to the same `\TSBin` directory Ultimate ASI Loader was extracted to.
 
 ## Configuration
-The included `TS2VisualHoodFX.ini` file contains all of the effects blacklisted from appearing in lot view. If the file is missing, a default set of
-blacklisted effects will be used as a fallback.
+The included `TS2VisibleHoodFX.ini` file contains all of the effects blacklisted from appearing in lot view. Effects can be blacklisted by adding them to the
+config file and vice versa.
 
-Effects can be blacklisted by adding them to the config file and vice versa. Each effect you wish to blacklist should be on a separate line &mdash;
-an example of the correct structure can be seen below:
+Each effect you wish to blacklist should be on a separate line &mdash; an example of the correct structure can be seen below:
 
 ```
 [Blacklist]
@@ -64,7 +63,12 @@ effect2 = nhood_object2_name
 effect3 = nhood_object3_name
 ```
 
-To blacklist no effects, simply leave the config file empty. The config file itself shouldn't be deleted, otherwise the fallback blacklist will be used.
+The plugin falls back to a default built-in blacklist if either the config file is missing, or the config file doesn't contain the `[Blacklist]` section.
+To blacklist no effects, simply remove all of the entries listed under `[Blacklist]`, like so:
+
+```
+[Blacklist]
+```
 
 ## Thanks
 [metayeti](https://github.com/metayeti), for [mINI](https://github.com/metayeti/mINI/).

@@ -1,0 +1,6 @@
+*.asi
+*.ilk
+*.obj
+*.pdb
+
+src/include

@@ -11,20 +11,16 @@ namespace
     const DWORD Init_Exit = 0x101C31D;
 
     void *overlayMgr = nullptr;
-    // These are effects that are either buggy or visually intrusive
-    const char *blacklistedFX[] = {"neighborhood_boulder_musical_notes",
-                                   "neighborhood_boulder_sailboats",
-                                   "neighborhood_boulder_ducks"};
 }
 
 namespace Effects
 {
-    bool IsBlacklistedEffect(const char *currEffect)
+    static bool IsBlacklistedEffect(const char *currEffect)
     {
         if (!currEffect)
             return true;
 
-        for (const char *effect : blacklistedFX)
+        for (const char *effect : Config::blacklistedFX)
         {
             if (_stricmp(currEffect, effect) == 0)
                 return true;
@@ -82,7 +78,7 @@ namespace Effects
 
     // cNHoodTerrain::CreateSceneGraphNodesAndGeometryBuilders
     // Nullifies pointer to stashed lot skirt overlay manager when transitioning to neighbourhood
-    // Necessary otherwise decals won't get drawn in hood view after exiting lot
+    // Necessary otherwise decals will still be attached to lot skirt manager and won't be drawn in hood
     void __declspec(naked) ResetOverlayManager()
     {
         __asm {
@@ -92,8 +88,8 @@ namespace Effects
         }
     }
 
-    // nGZSceneGraph::AddSelfToDisplayList
-    // Prevents lot skirt overlay geometry being culled when camera leaves lot bounds
+    // cOverlayNode::AddSelfToDisplayList
+    // Prevents nodes belonging to lot skirt overlay manager being culled when camera leaves lot bounds
     void __declspec(naked) PreventCullingDecals()
     {
         __asm {
@@ -104,10 +100,10 @@ namespace Effects
             je LAB_AddToDisplayList
         LAB_CheckCull:
             test eax,eax
-            jg LAB_Exit
+            jg LAB_Cull
         LAB_AddToDisplayList:
             jmp AddSelfToDisplayList_Exit_1
-        LAB_Exit:
+        LAB_Cull:
             jmp AddSelfToDisplayList_Exit_2
         }
     }

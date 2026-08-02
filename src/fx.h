@@ -1,10 +1,10 @@
 #pragma once
 #include "headers.h"
 #include "hooking.h"
+#include "config.h"
 
 namespace Effects
 {
-    bool IsBlacklistedEffect(const char *currEffect);
     extern "C" void CreateHoodFXInLot();
     extern "C" void GetLotSkirtOverlayManager();
     extern "C" void FixDecalOverlayManager();

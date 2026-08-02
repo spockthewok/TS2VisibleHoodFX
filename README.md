@@ -7,8 +7,8 @@ Allows neighbourhood-exclusive effects such as particle effects and decals to ap
 | <img src="media/vanillafx.png" width="450"> | <img src="media/modfx.png" width="450"> |
 
 ## Requirements
-- The Sims 2: Ultimate Collection <u>**OR**</u> The Sims 2 disc version with all EPs and SPs.
-- [Sims2RPC](https://modthesims.info/d/648220/sims2rpc-modded-sims-2-launcher-for-mansion-and-garden.html) <u>**OR**</u>
+- The Sims 2: Ultimate Collection <ins>**OR**</ins> The Sims 2 disc version with all EPs and SPs.
+- [Sims2RPC](https://modthesims.info/d/648220/sims2rpc-modded-sims-2-launcher-for-mansion-and-garden.html) <ins>**OR**</ins>
 [Ultimate ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader).
 
 ## Known Issues
@@ -30,7 +30,7 @@ in lot view:
 - Swans
 - Ocean surfs
 
-See the [Configuration](#configuration) section for more information on blacklisting effect.
+See the [Configuration](#configuration) section for more information on blacklisting effects.
 
 ## Installation
 **Sims2RPC Users**

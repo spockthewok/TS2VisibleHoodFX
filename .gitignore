@@ -2,3 +2,5 @@
 *.ilk
 *.obj
 *.pdb
+
+src/include/ini.h

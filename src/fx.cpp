@@ -41,7 +41,7 @@ namespace Effects
         LAB_CreateEffect:
             jmp CreateSceneGraphNodeForPropOccupant_Exit_1
         LAB_IsLot:
-            push [esp+0x30] // Name of current effect stored on stack
+            push [esp+0x30] // Name of current neighbourhood effect object stored on stack
             call IsBlacklistedEffect
             add esp,0x4
             test al,al

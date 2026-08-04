@@ -63,6 +63,9 @@ effect2 = nhood_object2_name
 effect3 = nhood_object3_name
 ```
 
+> [!NOTE]
+> The name of the neighbourhood object that creates the effect should be added to the blacklist, rather than the name of the effect itself.
+
 The plugin falls back to a default built-in blacklist if either the config file is missing, or the config file doesn't contain the `[Blacklist]` section.
 To blacklist no effects, simply remove all of the entries listed under `[Blacklist]`, like so:
 

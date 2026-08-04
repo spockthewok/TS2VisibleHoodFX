@@ -16,8 +16,7 @@ The lot skirt is much simpler than the neighbourhood terrain in terms of functio
 of neighbourhood effects in lot view:
 
 - Decals that overlap the current lot bounds will be cut off.
-- The lot skirt only supports a single overlay layer for shadows, whereas the neighbourhood terrain supports two (normals and shadows).
-Because of this, decals will be drawn on the shadow layer and appear on top of roads.
+- Decals will be drawn on top of roads rather than below them, like in neighbourhood view.
 
 Several effects require something known as an 'effect map' to be positioned correctly in the world. The lot skirt lacks this, meaning these
 effects will spawn either in the sky, or directly on the current lot. To prevent this, the following effects have been blacklisted from appearing

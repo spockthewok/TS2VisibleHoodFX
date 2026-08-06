@@ -3,6 +3,5 @@
 
 namespace Hooking
 {
-	void Nop(BYTE *pAddress, DWORD dwLen);
 	void MakeJMP(BYTE *pAddress, DWORD dwJumpTo, DWORD dwLen);
 }

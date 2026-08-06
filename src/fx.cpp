@@ -6,11 +6,15 @@ namespace
     const DWORD CreateSceneGraphNodeForPropOccupant_Exit_1 = 0xAD3B85;
     const DWORD CreateSceneGraphNodeForPropOccupant_Exit_2 = 0xAD3BAA;
     const DWORD CreateSceneGraphNodesAndGeometryBuilders_Exit = 0xADA618;
+    const DWORD SetMaterialState_Exit_1 = 0xb677bb;
+    const DWORD SetMaterialState_Exit_2 = 0xB67B17;
+    const DWORD SetMaterialState_Exit_3 = 0xB67B28;
     const DWORD AddSelfToDisplayList_Exit_1 = 0xB69D80;
     const DWORD AddSelfToDisplayList_Exit_2 = 0xB69DA6;
     const DWORD Init_Exit = 0x101C31D;
 
     void *overlayMgr = nullptr;
+    char *matName = nullptr;
 }
 
 namespace Effects
@@ -41,7 +45,7 @@ namespace Effects
         LAB_CreateEffect:
             jmp CreateSceneGraphNodeForPropOccupant_Exit_1
         LAB_IsLot:
-            push [esp+0x30] // Name of current neighbourhood effect object stored on stack
+            push [esp+0x30] // Name of current neighbourhood object stored on stack
             call IsBlacklistedEffect
             add esp,0x4
             test al,al
@@ -108,10 +112,50 @@ namespace Effects
         }
     }
 
+    static bool IsDecalMaterial(const char *currMaterial)
+    {
+        if (!currMaterial)
+            return false;
+
+        return _stricmp(currMaterial, "overlaydecalmaterial") == 0;
+    }
+
+    // cTerrainOverlayGeometryBase::SetMaterialState
+    // Stashes name of material currently being processed
+    // We need this as offset material name is stored at varies when game gets to the below code
+    void __declspec(naked) GetCurrentMaterial()
+    {
+        __asm {
+            mov eax,[esp+0x1C] // Pointer to material name stored on stack
+            mov eax,[eax]
+            mov [matName],eax
+            mov ecx,[ecx+0x90]
+            jmp SetMaterialState_Exit_1
+        }
+    }
+
     // cTerrainOverlayGeometryBase::SetMaterialState
     // Allows decals to receive proper colouring in lot view so they're not overly bright at night
-    void ColourDecals()
+    // Checks material name and that call came from cLotSkirtOverlayGeometry to avoid affecting shadows
+    void __declspec(naked) ColourDecals()
     {
-        Hooking::Nop((BYTE *)0xB67B10, 24);
+        __asm {
+            mov ecx,[esp+0x4]
+            cmp dword ptr [ecx],0x1245754 // cLotSkirtOverlayGeometry vtable address
+            jne LAB_CheckInHood
+            pushad
+            push [matName]
+            call IsDecalMaterial
+            add esp,0x4
+            test al,al
+            popad
+            jnz LAB_ColourDecal
+        LAB_CheckInHood:
+            push 0x5
+            push 0x12456F0 // "neigh"
+            jmp SetMaterialState_Exit_2
+        LAB_ColourDecal:
+            jmp SetMaterialState_Exit_3
+        }
     }
 }

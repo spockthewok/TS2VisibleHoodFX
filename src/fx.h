@@ -10,5 +10,6 @@ namespace Effects
     extern "C" void FixDecalOverlayManager();
     extern "C" void ResetOverlayManager();
     extern "C" void PreventCullingDecals();
-    void ColourDecals();
+    extern "C" void GetCurrentMaterial();
+    extern "C" void ColourDecals();
 }

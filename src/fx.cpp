@@ -6,7 +6,7 @@ namespace
     const DWORD CreateSceneGraphNodeForPropOccupant_Exit_1 = 0xAD3B85;
     const DWORD CreateSceneGraphNodeForPropOccupant_Exit_2 = 0xAD3BAA;
     const DWORD CreateSceneGraphNodesAndGeometryBuilders_Exit = 0xADA618;
-    const DWORD SetMaterialState_Exit_1 = 0xb677bb;
+    const DWORD SetMaterialState_Exit_1 = 0xB677BB;
     const DWORD SetMaterialState_Exit_2 = 0xB67B17;
     const DWORD SetMaterialState_Exit_3 = 0xB67B28;
     const DWORD AddSelfToDisplayList_Exit_1 = 0xB69D80;
@@ -122,7 +122,7 @@ namespace Effects
 
     // cTerrainOverlayGeometryBase::SetMaterialState
     // Stashes name of material currently being processed
-    // We need this as offset material name is stored at varies when game gets to the below code
+    // We need this as offset material name is stored at varies when game executes ColourDecals()
     void __declspec(naked) GetCurrentMaterial()
     {
         __asm {

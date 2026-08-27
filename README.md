@@ -1,6 +1,6 @@
 # TS2 Visible Hood FX
 ## About
-Allows neighbourhood-exclusive effects such as particle effects and decals to appear in lot view.
+Allows neighbourhood-exclusive details such as bridges, particle effects, and decals to appear in lot view.
 
 | Vanilla | Mod |
 | :-----: | :-: |
@@ -59,7 +59,7 @@ shaders load last, otherwise use the 'Maxis' version.
 
 > [!IMPORTANT]
 > You do not need to install these shaders if you are using Christaskyy's
-> [Improved Lot Skirt Shaders](https://www.tumblr.com/christaskyy/821768821608169472/ts2-improved-shaders).
+> [Improved Shaders](https://www.tumblr.com/christaskyy/821768821608169472/ts2-improved-shaders).
 
 ## Configuration
 The included `TS2VisibleHoodFX.ini` file contains all of the effects blacklisted from appearing in lot view. Effects can be blacklisted by adding them to the
@@ -83,6 +83,10 @@ To blacklist no effects, simply remove all of the entries listed under `[Blackli
 ```
 [Blacklist]
 ```
+
+## Recommended Mods
+[No Neighbourhood Effect Rocks](https://mechemik.tumblr.com/post/76558980499/hey-guys-i-bring-for-you-a-small-little-fix) by Chemic - hides the unnecessary
+boulder model that certain effects place.
 
 ## Thanks
 [metayeti](https://github.com/metayeti), for [mINI](https://github.com/metayeti/mINI/).

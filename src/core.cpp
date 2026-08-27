@@ -11,6 +11,12 @@ namespace Core
         Hooking::MakeJMP((BYTE *)0xB69D73, (DWORD)Effects::PreventCullingDecals, 6);
         Hooking::MakeJMP((BYTE *)0xB677B5, (DWORD)Effects::GetCurrentMaterial, 6);
         Hooking::MakeJMP((BYTE *)0xB67B10, (DWORD)Effects::ColourDecals, 7);
+
+        Roads::AllowBridgesInLot();
+        Roads::PreserveOccupantManager();
+        Hooking::MakeJMP((BYTE *)0xAD55E2, (DWORD)Roads::SkipRoadsDestructor, 12);
+        Hooking::MakeJMP((BYTE *)0xAD210D, (DWORD)Roads::TranslateBridgesToLot, 6);
+        Hooking::MakeJMP((BYTE *)0xAD214A, (DWORD)Roads::RotateBridges, 7);
     }
 
     void Init()

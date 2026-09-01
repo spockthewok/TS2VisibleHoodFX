@@ -84,6 +84,8 @@ To blacklist no effects, simply remove all of the entries listed under `[Blackli
 [Blacklist]
 ```
 
+For a list of all of the effects in the vanilla game, see [here](https://github.com/spockthewok/TS2VisibleHoodFX/blob/main/EFFECTS.md).
+
 ## Recommended Mods
 [No Neighbourhood Effect Rocks](https://mechemik.tumblr.com/post/76558980499/hey-guys-i-bring-for-you-a-small-little-fix) by Chemic - hides the unnecessary
 boulder model that certain effects place.

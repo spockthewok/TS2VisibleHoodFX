@@ -107,8 +107,7 @@ namespace Effects
             je LAB_CheckCull
             mov edx,[ebp+0x24]
             mov edx,[edx]
-            mov edx,[edx]
-            cmp edx,0x12457E8 // cOverlayNode vtable address
+            cmp [edx],0x12457E8 // cOverlayNode vtable address
             jne LAB_CheckCull
             jmp LAB_ContinueQuery
         LAB_CheckCull:

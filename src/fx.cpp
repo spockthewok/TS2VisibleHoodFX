@@ -95,9 +95,10 @@ namespace Effects
     }
 
     // cLooseOctreePartitionNode::FrustumQuery
-    // Prevents any cOverlayNode objects being culled in lot view
+    // Prevents any cOverlayNode objects being culled based on visibility in lot view
     // Important as cLooseOctreePartitionNode::FrustumQuery calls cOverlayNode::AddSelfToDisplayList
     // Without this, PreventCullingDecals() would be skipped
+    // Shouldn't affect performance as non-decal overlays will be culled by cOverlayNode::AddSelfToDisplayList
     void __declspec(naked) PreventCullingOverlays()
     {
         __asm {
@@ -108,8 +109,7 @@ namespace Effects
             mov edx,[ebp+0x24]
             mov edx,[edx]
             cmp [edx],0x12457E8 // cOverlayNode vtable address
-            jne LAB_CheckCull
-            jmp LAB_ContinueQuery
+            je LAB_ContinueQuery
         LAB_CheckCull:
             test eax,eax
             jg LAB_Cull

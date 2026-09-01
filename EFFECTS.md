@@ -1,5 +1,5 @@
 ## TS2 Effects List
-This is an alphabetical list of all of the neighbourhood effect objects found in the vanilla game. You may refer to this list when adding
+This is an alphabetical list of all of the neighbourhood effect objects found in the vanilla game. You may wish to refer to this list when adding
 effects to the blacklist.
 
 | Catalogue Name | Asset Name |

@@ -8,6 +8,7 @@ namespace Core
         Hooking::MakeJMP((BYTE *)0xA84A35, (DWORD)Effects::GetLotSkirtOverlayManager, 6);
         Hooking::MakeJMP((BYTE *)0x101C317, (DWORD)Effects::FixDecalOverlayManager, 6);
         Hooking::MakeJMP((BYTE *)0xADA612, (DWORD)Effects::ResetOverlayManager, 6);
+        Hooking::MakeJMP((BYTE *)0xFB00E1, (DWORD)Effects::PreventCullingOverlays, 8);
         Hooking::MakeJMP((BYTE *)0xB69D73, (DWORD)Effects::PreventCullingDecals, 6);
         Hooking::MakeJMP((BYTE *)0xB677B5, (DWORD)Effects::GetCurrentMaterial, 6);
         Hooking::MakeJMP((BYTE *)0xB67B10, (DWORD)Effects::ColourDecals, 7);

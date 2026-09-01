@@ -119,7 +119,6 @@ namespace Roads
             push edx
             call SetOrientation
             add esp,0x8
-        LAB_Exit:
             popad
             mov ecx,[esp+0x8C]
             jmp CreateSceneGraphNodeForRoadOccupantWithModel_Exit_2

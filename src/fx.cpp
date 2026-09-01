@@ -11,6 +11,8 @@ namespace
     const DWORD SetMaterialState_Exit_3 = 0xB67B28;
     const DWORD AddSelfToDisplayList_Exit_1 = 0xB69D80;
     const DWORD AddSelfToDisplayList_Exit_2 = 0xB69DA6;
+    const DWORD FrustumQuery_Exit_1 = 0xFB00E9;
+    const DWORD FrustumQuery_Exit_2 = 0xFB0194;
     const DWORD Init_Exit = 0x101C31D;
 
     void *overlayMgr = nullptr;
@@ -89,6 +91,33 @@ namespace Effects
             mov [overlayMgr],0x0
             call [eax+0xB4]
             jmp CreateSceneGraphNodesAndGeometryBuilders_Exit
+        }
+    }
+
+    // cLooseOctreePartitionNode::FrustumQuery
+    // Prevents any cOverlayNode objects being culled in lot view
+    // Important as cLooseOctreePartitionNode::FrustumQuery calls cOverlayNode::AddSelfToDisplayList
+    // Without this, PreventCullingDecals() would be skipped
+    void __declspec(naked) PreventCullingOverlays()
+    {
+        __asm {
+            cmp [overlayMgr],0x0
+            je LAB_CheckCull
+            cmp [ebp+0x24],0x0
+            je LAB_CheckCull
+            mov edx,[ebp+0x24]
+            mov edx,[edx]
+            mov edx,[edx]
+            cmp edx,0x12457E8 // cOverlayNode vtable address
+            jne LAB_CheckCull
+            jmp LAB_ContinueQuery
+        LAB_CheckCull:
+            test eax,eax
+            jg LAB_Cull
+        LAB_ContinueQuery:
+            jmp FrustumQuery_Exit_1
+        LAB_Cull:
+            jmp FrustumQuery_Exit_2
         }
     }
 

@@ -7,8 +7,8 @@ namespace
     const DWORD CreateSceneGraphNodeForPropOccupant_Exit_2 = 0xAD3BAA;
     const DWORD CreateSceneGraphNodesAndGeometryBuilders_Exit = 0xADA618;
     const DWORD SetMaterialState_Exit_1 = 0xB677BB;
-    const DWORD SetMaterialState_Exit_2 = 0xB67B17;
-    const DWORD SetMaterialState_Exit_3 = 0xB67B28;
+    const DWORD SetMaterialState_Exit_2 = 0xB67B28;
+    const DWORD SetMaterialState_Exit_3 = 0xB67C9D;
     const DWORD AddSelfToDisplayList_Exit_1 = 0xB69D80;
     const DWORD AddSelfToDisplayList_Exit_2 = 0xB69DA6;
     const DWORD FrustumQuery_Exit_1 = 0xFB00E9;
@@ -108,7 +108,7 @@ namespace Effects
             je LAB_CheckCull
             mov edx,[ebp+0x24]
             mov edx,[edx]
-            cmp [edx],0x12457E8 // cOverlayNode vtable address
+            cmp dword ptr [edx],0x12457E8 // cOverlayNode vtable address
             je LAB_ContinueQuery
         LAB_CheckCull:
             test eax,eax
@@ -164,25 +164,29 @@ namespace Effects
 
     // cTerrainOverlayGeometryBase::SetMaterialState
     // Allows decals to receive proper colouring in lot view so they're not overly bright at night
-    // Checks material name and that call came from cLotSkirtOverlayGeometry to avoid affecting shadows
+    // Checks material name and that call came from cLotSkirtOverlayGeometry to avoid affecting lot shadows
+    // Does similar test for nhood to replace constant _strnicmp check game was performing even in lot view
     void __declspec(naked) ColourDecals()
     {
         __asm {
             mov ecx,[esp+0x4]
+            cmp [overlayMgr],0x0
+            jne LAB_InLot
+            cmp dword ptr [ecx],0x123E8C4 // cNHoodTerrainOverlayGeometry vtable address
+            je LAB_ColourDecal
+        LAB_InLot:
             cmp dword ptr [ecx],0x1245754 // cLotSkirtOverlayGeometry vtable address
-            jne LAB_CheckInHood
+            jne LAB_Skip
             pushad
             push [matName]
             call IsDecalMaterial
             add esp,0x4
             test al,al
             popad
-            jnz LAB_ColourDecal
-        LAB_CheckInHood:
-            push 0x5
-            push 0x12456F0 // "neigh"
-            jmp SetMaterialState_Exit_2
+            jz LAB_Skip
         LAB_ColourDecal:
+            jmp SetMaterialState_Exit_2
+        LAB_Skip:
             jmp SetMaterialState_Exit_3
         }
     }

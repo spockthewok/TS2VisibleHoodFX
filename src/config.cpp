@@ -3,8 +3,8 @@
 namespace
 {
     mINI::INIStructure ini;
-    const char *configNameBase = "TS2VisibleHoodFX.ini";
-    const char *configNameRPC = "mods/TS2VisibleHoodFX.ini";
+    const std::filesystem::path configNameBase = "TS2VisibleHoodFX.ini";
+    const std::filesystem::path configNameRPC = "mods/TS2VisibleHoodFX.ini";
 
     // These effects are bugged due to lack of lot skirt effect map
     const std::vector<const char *> blacklistDefaults = {"neighborhood_boulder_sailboats",
@@ -20,11 +20,24 @@ namespace Config
 {
     std::vector<const char *> blacklistedFX;
 
+    static std::string GetModuleName()
+    {
+        char buffer[MAX_PATH];
+
+        DWORD pathLen = GetModuleFileNameA(nullptr, buffer, MAX_PATH);
+
+        if (pathLen == 0 || pathLen == MAX_PATH)
+            return "";
+
+        std::filesystem::path exePath(buffer);
+        return exePath.filename().string();
+    }
+
     static void PopulateBlacklist(const std::string &section)
     {
         auto &collection = ini[section];
 
-        for (auto const &[key, value] : collection)
+        for (const auto &[key, value] : collection)
         {
             if (!value.empty())
                 blacklistedFX.push_back(value.c_str());
@@ -33,9 +46,9 @@ namespace Config
 
     void Init()
     {
-        const char *configName = configNameBase;
+        std::filesystem::path configName = configNameBase;
 
-        if (std::filesystem::exists(configNameRPC))
+        if (GetModuleName().find("RPC.exe") != std::string::npos)
             configName = configNameRPC;
 
         mINI::INIFile file(configName);

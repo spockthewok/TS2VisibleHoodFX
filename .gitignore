@@ -3,4 +3,5 @@
 *.obj
 *.pdb
 
+.vscode
 src/include/ini.h

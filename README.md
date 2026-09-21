@@ -32,8 +32,8 @@ See the [Configuration](#configuration) section for more information on blacklis
 **Sims2RPC Users:**
 
 1. Download `TS2VisibleHoodFX.zip`, found under the [Releases](https://github.com/spockthewok/TS2VisibleHoodFX/releases/latest) section of this repository.
-2. Extract both the `.asi` and `.ini` files within the `Plugin` folder to your `\TSBin\mods` directory, found wherever you have the Sims 2 installed to.
-For example, on my machine, they would be extracted to:
+2. Extract both `TS2VisibleHoodFX.asi` and `TS2VisibleHoodFX.ini` from the zip file to your `\TSBin\mods` directory, found wherever you have the Sims 2 installed.
+   For example, on my machine, they would be extracted to:
 
    `E:\Games\The Sims 2\Fun with Pets\SP9\TSBin\mods`
 
@@ -44,7 +44,7 @@ For example, on my machine, they would be extracted to:
 
    `E:\Games\The Sims 2\Fun with Pets\SP9\TSBin`
 3. Download `TS2VisibleHoodFX.zip`, found under the [Releases](https://github.com/spockthewok/TS2VisibleHoodFX/releases/latest) section of this repository.
-4. Extract both the `.asi` and `.ini` files within the `Plugin` folder to the same `\TSBin` directory Ultimate ASI Loader was extracted to.
+4. Extract both `TS2VisibleHoodFX.asi` and `TS2VisibleHoodFX.ini` from the zip file to the same `\TSBin` directory Ultimate ASI Loader was extracted to.
 
 ### <ins>Shaders</ins>
 The mod also includes an edited lot skirt shader, which fixes an issue where decal effects would incorrectly draw on top of roads in lot view:
@@ -53,9 +53,14 @@ The mod also includes an edited lot skirt shader, which fixes an issue where dec
 | :-----: | :-: |
 | <img src="media/vanillashaders.png" width="450"> | <img src="media/modshaders.png" width="450"> |
 
-To install, extract one of the `.package` files within the `Shaders` folder in `TS2VisibleHoodFX.zip` to your Sims 2 `\Downloads` directory. Choose the 'dreadpirate'
-version if you are using [dreadpirate's shader fixes](https://www.tumblr.com/dreadpirate/179182314487/blue-snow-no-more-shader-fixes-ive-included) and ensure my
-shaders load last, otherwise use the 'Maxis' version.
+To install, extract one of the `.package` files within the `Shaders` folder in `TS2VisibleHoodFX.zip` to your Sims 2 `\Downloads` directory. Which version
+you choose depends on which of these mods you use:
+
+- <ins>Sky Fix</ins>: [Sky Fix](https://modthesims.info/d/569032/sky-fix.html).
+
+- <ins>Dreadpirate</ins>: [Dreadpirate's Shader Fixes](https://www.tumblr.com/dreadpirate/179182314487/blue-snow-no-more-shader-fixes-ive-included).
+
+- <ins>Maxis</ins>: None of the above.
 
 > [!IMPORTANT]
 > You do not need to install these shaders if you are using Christaskyy's
@@ -87,7 +92,7 @@ To blacklist no effects, simply remove all of the entries listed under `[Blackli
 For a list of all of the effects in the vanilla game, see [here](https://github.com/spockthewok/TS2VisibleHoodFX/blob/main/EFFECTS.md).
 
 ## Recommended Mods
-[No Neighbourhood Effect Rocks](https://mechemik.tumblr.com/post/76558980499/hey-guys-i-bring-for-you-a-small-little-fix) by Chemic - hides the unnecessary
+[No Neighbourhood Effect Rocks](https://mechemik.tumblr.com/post/76558980499/hey-guys-i-bring-for-you-a-small-little-fix) by Chemic &mdash; hides the unnecessary
 boulder model that certain effects place.
 
 ## Thanks
@@ -96,3 +101,5 @@ boulder model that certain effects place.
 [LazyDuchess](https://github.com/LazyDuchess), for the hooking code used in this mod.
 
 [dreadpirate](https://www.tumblr.com/dreadpirate), for their [shader fixes](https://www.tumblr.com/dreadpirate/179182314487/blue-snow-no-more-shader-fixes-ive-included).
+
+[Nopke](https://modthesims.info/m/9742948), for [Sky Fix](https://modthesims.info/d/569032/sky-fix.html).

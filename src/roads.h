@@ -1,7 +1,4 @@
 #pragma once
-#define _USE_MATH_DEFINES
-#include "hooking.h"
-#include <math.h>
 
 namespace Roads
 {

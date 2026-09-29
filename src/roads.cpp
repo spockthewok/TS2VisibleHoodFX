@@ -1,4 +1,8 @@
+#define _USE_MATH_DEFINES
 #include "roads.h"
+#include "hooking.h"
+#include "TS2.h"
+#include <math.h>
 
 namespace
 {
@@ -6,8 +10,6 @@ namespace
     const DWORD CreateSceneGraphNodeForRoadOccupantWithModel_Exit_2 = 0xAD2151;
     const DWORD CreateMergedRoadGeometry_Exit_1 = 0xAD55EE;
     const DWORD CreateMergedRoadGeometry_Exit_2 = 0xAD55F3;
-    // Base address of (anonymous_namespace)::OffsetPositionToLot
-    const DWORD OffsetPositionToLot = 0xAD0460;
 
     const BYTE ecxReg[] = {0x4E, 0x51};
     const BYTE roadSkip[] = {0x55,                    // PUSH EBP
@@ -73,7 +75,7 @@ namespace Roads
     void __declspec(naked) SkipRoadsDestructor()
     {
         __asm {
-            mov al,[esi+0xC1] // Is 0 if not in neighbourhood
+            mov al,[esi+0xC1] // bool inNeighbourhood
             test al,al
             jz LAB_Skip
             lea ecx,[esp+0x1C]

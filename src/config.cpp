@@ -1,4 +1,6 @@
 #include "config.h"
+#include "headers.h"
+#include "include/ini.h"
 
 namespace
 {
@@ -35,7 +37,7 @@ namespace Config
 
     static void PopulateBlacklist(const std::string &section)
     {
-        auto &collection = ini[section];
+        const auto &collection = ini[section];
 
         for (const auto &[key, value] : collection)
         {

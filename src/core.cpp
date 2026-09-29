@@ -20,6 +20,7 @@ namespace Core
         Hooking::MakeJMP((BYTE *)0xB67B10, (DWORD)Decals::ColourDecals, 7);
         Hooking::MakeJMP((BYTE *)0x1021364, (DWORD)Maps::FixMetaParticleEffectMap, 5);
         Hooking::MakeJMP((BYTE *)0xB7EBAE, (DWORD)Maps::IncreaseLotBoundingRect, 5);
+        Hooking::MakeJMP((BYTE *)0xB7ECB0, (DWORD)Maps::GetRelativeWaterLevel, 6);
 
         Roads::AllowBridgesInLot();
         Roads::PreserveOccupantManager();

@@ -5,6 +5,7 @@
 namespace
 {
     const DWORD GetBoundingRect_Exit = 0xB7EBDE;
+    const DWORD WaterLevel_Exit = 0xB7ECB6;
     const DWORD Init_Exit = 0x1021369;
 
     // All TS2 neighbourhoods are small SC4 maps of this size
@@ -41,6 +42,8 @@ namespace Maps
             mov ecx,eax
             call [edx+0x1C] // cTSEffectsMap::EffectMap
             mov [esp+0xC],eax // Stash returned effect map vtable pointer
+            cmp dword ptr [eax],0x12476B4 // Skip if already pointing to lot effect map vtable
+            je LAB_Exit
             call TS::Globals
             mov edx,[eax]
             mov ecx,eax
@@ -67,8 +70,6 @@ namespace Maps
             jz LAB_Exit
             mov eax,[eax+0x40] // cTerrainGeometryData object
             add eax,0x8 // Object var holding vtable address of lot effect map methods
-            cmp eax,[esp+0xC]
-            je LAB_Exit
             mov [esp+0xC],eax
         LAB_Exit:
             mov eax,[esp+0xC]
@@ -84,9 +85,33 @@ namespace Maps
     {
         __asm {
             fild [nhoodSize]
-            fstp [edx]
-            fild [nhoodSize]
+            fst [edx]
             jmp GetBoundingRect_Exit
+        }
+    }
+
+    // cTerrainGeometryData::WaterLevel
+    // Lot effect map always returns 0.0 for water level, regardless of lot height above sea level
+    // Game calculates sea level relative to lot z in cLotSkirt::ComputeLotSkirtParameters
+    // This returns the value of cLotSkirt var the result of said calculation was stored in
+    // Ensures water effects spawn at the correct height
+    void __declspec(naked) GetRelativeWaterLevel()
+    {
+        __asm {
+            mov eax,dword ptr ds:[0x1478F10] // nTSSG::TSSGSystem
+            test eax,eax
+            jz LAB_Null
+            mov edx,[eax]
+            mov ecx,eax
+            call [edx+0x94] // cTSSGSystem::LotSkirt
+            test eax,eax
+            jz LAB_Null
+            fld [eax+0xB4] // Object var holding result of cLotSkirt::ComputeLotSkirtParameters
+            jmp LAB_Exit
+        LAB_Null:
+            fldz
+        LAB_Exit:
+            jmp WaterLevel_Exit
         }
     }
 }

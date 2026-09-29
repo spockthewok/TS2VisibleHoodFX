@@ -72,7 +72,7 @@ namespace Maps
             mov [esp+0xC],eax
         LAB_Exit:
             mov eax,[esp+0xC]
-            jmp cTSMetaParticlesEffect_Init_Exit
+            jmp Init_Exit
         }
     }
 

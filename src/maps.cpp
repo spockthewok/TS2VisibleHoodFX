@@ -132,10 +132,15 @@ namespace Maps
         return *reinterpret_cast<float *>(lotSkirt + 0xB4);
     }
 
-    static void TranslateCoords(nTSSG::cLotSkirt *lotSkirt, std::array<float, 2> &coords)
+    static void TranslateCoords(std::array<float, 2> &coords)
     {
+        nTSSG::cTSSGSystem *system = *reinterpret_cast<nTSSG::cTSSGSystem **>(0x1478F10);
+        nTSSG::cLotSkirt *lotSkirt = system->LotSkirt();
+
         if (!lotSkirt)
             return;
+
+        lotSkirt = reinterpret_cast<nTSSG::cLotSkirt *>(lotSkirt - 0x8);
 
         UINT rotation = *reinterpret_cast<UINT *>(lotSkirt + 0xF4);
         float offsetX = static_cast<float>(*reinterpret_cast<int *>(lotSkirt + 0xF8) * 10);
@@ -161,20 +166,17 @@ namespace Maps
 
     static float GetHeightAtPosition(const float x, const float y)
     {
-        nTSSG::cTSSGSystem *system = *reinterpret_cast<nTSSG::cTSSGSystem **>(0x1478F10);
         cTSGlobals *globals = TS::Globals();
         cTSGameStateController *gameState = TS::GameStateController();
-        nTSSG::cLotSkirt *lotSkirt = system->LotSkirt();
         cTSNHoodTerrain *nhoodTerrain = globals->NeighborhoodTerrain();
         cTSLotInfo *lotInfo = gameState->CurrentLotInfo();
 
-        if (!lotSkirt || !nhoodTerrain || !lotInfo)
+        if (!nhoodTerrain || !lotInfo)
             return 0.0f;
 
-        lotSkirt = reinterpret_cast<nTSSG::cLotSkirt *>(lotSkirt - 0x8);
         std::array<float, 2> coords = {x, y};
 
-        TranslateCoords(lotSkirt, coords);
+        TranslateCoords(coords);
 
         float terrainHeight = nhoodTerrain->GetTerrainHeight(coords[0], coords[1]);
         float offsetZ = lotInfo->NHoodToLotHeightOffset();

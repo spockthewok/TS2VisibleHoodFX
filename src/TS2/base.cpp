@@ -13,9 +13,4 @@ namespace TS
     GetGameStateController GameStateController = reinterpret_cast<GetGameStateController>(0x799B65);
 }
 
-namespace nGZNumerics
-{
-    GetEulerToQuaternion EulerToQuaternion = reinterpret_cast<GetEulerToQuaternion>(0xEBDEB0);
-}
-
 const DWORD OffsetPositionToLot = 0xAD0460;

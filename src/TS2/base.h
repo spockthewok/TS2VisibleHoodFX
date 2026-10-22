@@ -18,10 +18,4 @@ namespace TS
     extern GetGameStateController GameStateController;
 }
 
-namespace nGZNumerics
-{
-    using GetEulerToQuaternion = void(__thiscall *)(float *, float *);
-    extern GetEulerToQuaternion EulerToQuaternion;
-}
-
 extern const DWORD OffsetPositionToLot;

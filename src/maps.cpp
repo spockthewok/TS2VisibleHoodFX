@@ -5,6 +5,7 @@
 #include "TS2/cTSNHoodTerrain.h"
 #include <string>
 #include <cmath>
+#include <array>
 
 namespace
 {
@@ -131,27 +132,31 @@ namespace Maps
         return *reinterpret_cast<float *>(lotSkirt + 0xB4);
     }
 
-    static void PreTranslateCoords(float *coords, const UINT rotation)
+    static void TranslateCoords(nTSSG::cLotSkirt *lotSkirt, std::array<float, 2> &coords)
     {
-        // Nhood rotation is also 0, so no extra translation is required
-        // Shouldn't be possible, but multiples of 4 would be full 360-degree rotation
-        if (rotation == 0 || rotation % 4 == 0)
+        if (!lotSkirt)
             return;
 
+        UINT rotation = *reinterpret_cast<UINT *>(lotSkirt + 0xF4);
+        float offsetX = static_cast<float>(*reinterpret_cast<int *>(lotSkirt + 0xF8) * 10);
+        float offsetY = static_cast<float>(*reinterpret_cast<int *>(lotSkirt + 0xFC) * 10);
         float currX = coords[0];
         float currY = coords[1];
 
-        // Flip coords along x/y axis depending on lot rotation
-        if (rotation % 2 == 0) // 180 degrees
+        switch (rotation)
         {
-            coords[0] = -currX;
-            coords[1] = -currY;
-        }
-        else // 90/270 degrees
-        {
+        case 1:
+        case 3:
             coords[0] = -currY;
             coords[1] = -currX;
+            break;
+        case 2:
+            coords[0] = offsetX - currX;
+            coords[1] = offsetY - currY;
+            return;
         }
+
+        lotSkirt->TranslateLotCoordsToNhoodCoords(coords[0], coords[1], &coords[0], &coords[1]);
     }
 
     static float GetHeightAtPosition(const float x, const float y)
@@ -167,27 +172,20 @@ namespace Maps
             return 0.0f;
 
         lotSkirt = reinterpret_cast<nTSSG::cLotSkirt *>(lotSkirt - 0x8);
+        std::array<float, 2> coords = {x, y};
 
-        UINT rotation = *reinterpret_cast<UINT *>(lotSkirt + 0xF4);
-        float lotCoords[2] = {x, y};
-        float nhoodCoords[2] = {0.0f, 0.0f};
+        TranslateCoords(lotSkirt, coords);
 
-        if (rotation != 0)
-            PreTranslateCoords(lotCoords, rotation);
-
-        lotSkirt->TranslateLotCoordsToNhoodCoords(lotCoords[0], lotCoords[1],
-                                                  &nhoodCoords[0], &nhoodCoords[1]);
-
-        float height = nhoodTerrain->GetTerrainHeight(nhoodCoords[0], nhoodCoords[1]);
+        float terrainHeight = nhoodTerrain->GetTerrainHeight(coords[0], coords[1]);
         float offsetZ = lotInfo->NHoodToLotHeightOffset();
 
-        if (std::isnan(height) || std::isinf(height) || height == 0)
+        if (std::isnan(terrainHeight) || std::isinf(terrainHeight) || terrainHeight == 0)
             return Floats::nhoodSize; // Return large value so later checks fail
 
         // Game later subtracts water level from this value
         // Because lot water level is negative, calculation becomes height + lotWaterLvl
-        // Equivalent to height - nhoodWaterLvl, which is what nhood uses to get height
-        return height - offsetZ;
+        // Equivalent to terrainHeight - nhoodWaterLvl, which is what nhood uses to get height
+        return terrainHeight - offsetZ;
     }
 
     // cTerrainGeometryData::Height

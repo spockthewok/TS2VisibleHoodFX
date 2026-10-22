@@ -1,9 +1,9 @@
 #pragma once
-#include <vector>
+#include <unordered_set>
 
 namespace Config
 {
-    extern std::vector<const char *> blacklistedFX;
+    extern std::unordered_set<const char *> blacklistedFX;
 
     void Init();
 }

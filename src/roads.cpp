@@ -1,7 +1,7 @@
 #define _USE_MATH_DEFINES
 #include "roads.h"
 #include "hooking.h"
-#include "TS2.h"
+#include "TS2/base.h"
 #include <math.h>
 
 namespace
@@ -24,8 +24,8 @@ namespace Roads
     // We need our own function as bridge orientation is already in quaternion form
     static void SetOrientation(float *cQuaternion, int orientation)
     {
-        float degrees = orientation * 90.0;
-        float radians = degrees * (M_PI / 180.0);
+        float degrees = orientation * 90.0f;
+        float radians = degrees * (M_PI / 180.0f);
 
         // These vars are a bit unnecessary, but they help to reduce line length :/
         float currX = cQuaternion[0];
@@ -33,10 +33,10 @@ namespace Roads
         float currZ = cQuaternion[2];
         float currW = cQuaternion[3];
 
-        float rotX = 0.0;
-        float rotY = 0.0;
-        float rotZ = sinf(radians * 0.5);
-        float rotW = cosf(radians * 0.5);
+        float rotX = 0.0f;
+        float rotY = 0.0f;
+        float rotZ = sinf(radians * 0.5f);
+        float rotW = cosf(radians * 0.5f);
 
         float x = (currX * rotW) + (currW * rotX) + (currZ * rotY) - (currY * rotZ);
         float y = (currY * rotW) - (currZ * rotX) + (currW * rotY) + (currX * rotZ);

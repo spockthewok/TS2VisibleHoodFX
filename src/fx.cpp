@@ -16,13 +16,10 @@ namespace Effects
         if (!currEffect)
             return true;
 
-        for (const char *effect : Config::blacklistedFX)
-        {
-            if (_stricmp(currEffect, effect) == 0)
-                return true;
-        }
+        if (Config::blacklistedFX.size() == 0)
+            return false;
 
-        return false;
+        return Config::blacklistedFX.contains(currEffect);
     }
 
     // cNHoodOccupantManager::CreateSceneGraphNodeForPropOccupant

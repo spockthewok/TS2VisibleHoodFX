@@ -7,20 +7,11 @@ namespace
     mINI::INIStructure ini;
     const std::filesystem::path configNameBase = "TS2VisibleHoodFX.ini";
     const std::filesystem::path configNameRPC = "mods/TS2VisibleHoodFX.ini";
-
-    // These effects are bugged due to lack of lot skirt effect map
-    const std::vector<const char *> blacklistDefaults = {"neighborhood_boulder_sailboats",
-                                                         "neighborhood_boulder_punts",
-                                                         "neighborhood_boulder_birds",
-                                                         "neighborhood_boulder_ducks",
-                                                         "neighborhood_boulder_swans",
-                                                         "neighborhood_boulder_surf",
-                                                         "neighborhood_boulder_twikkiiSurf"};
 }
 
 namespace Config
 {
-    std::vector<const char *> blacklistedFX;
+    std::unordered_set<const char *> blacklistedFX;
 
     static std::string GetModuleName()
     {
@@ -42,7 +33,7 @@ namespace Config
         for (const auto &[key, value] : collection)
         {
             if (!value.empty())
-                blacklistedFX.push_back(value.c_str());
+                blacklistedFX.insert(value.c_str());
         }
     }
 
@@ -56,10 +47,7 @@ namespace Config
         mINI::INIFile file(configName);
 
         if (!file.read(ini) || !ini.has("Blacklist"))
-        {
-            blacklistedFX = blacklistDefaults;
             return;
-        }
 
         PopulateBlacklist("Blacklist");
     }

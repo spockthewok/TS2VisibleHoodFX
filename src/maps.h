@@ -2,7 +2,9 @@
 
 namespace Maps
 {
+    extern "C" void FixParticleEffectMap();
     extern "C" void FixMetaParticleEffectMap();
     extern "C" void IncreaseLotBoundingRect();
-    extern "C" void GetRelativeWaterLevel();
+    float GetRelativeWaterLevel();
+    void HandleNegativeValues();
 }

@@ -1,17 +1,17 @@
 #include "decals.h"
 #include "headers.h"
+#include "TS2/base.h"
 
 namespace
 {
     const DWORD TurnOnDisplay_Exit = 0xA84A3B;
     const DWORD CreateSceneGraphNodesAndGeometryBuilders_Exit = 0xADA618;
+    const DWORD NodeBoundingBox_Exit = 0xB66AC4;
     const DWORD SetMaterialState_Exit_1 = 0xB677BB;
     const DWORD SetMaterialState_Exit_2 = 0xB67B28;
     const DWORD SetMaterialState_Exit_3 = 0xB67C9D;
     const DWORD AddSelfToDisplayList_Exit_1 = 0xB69D80;
     const DWORD AddSelfToDisplayList_Exit_2 = 0xB69DA6;
-    const DWORD FrustumQuery_Exit_1 = 0xFB00E9;
-    const DWORD FrustumQuery_Exit_2 = 0xFB0194;
     const DWORD Init_Exit = 0x101C31D;
 
     void *overlayMgr = nullptr;
@@ -59,34 +59,20 @@ namespace Decals
         }
     }
 
-    // cLooseOctreePartitionNode::FrustumQuery
-    // Prevents any cOverlayNode objects being culled based on visibility in lot view
-    // Important as cLooseOctreePartitionNode::FrustumQuery calls cOverlayNode::AddSelfToDisplayList
-    // Without this, PreventCullingDecals() would be skipped
-    // Shouldn't affect performance as non-decal overlays will be culled by cOverlayNode::AddSelfToDisplayList
-    void __declspec(naked) PreventCullingOverlays()
+    // cOverlayNode::NodeBoundingBox
+    // Keeps overlay node bounding box consistent between nhood and lot view
+    void __declspec(naked) IncreaseOverlayBoundingBox()
     {
         __asm {
-            cmp [overlayMgr],0x0
-            je LAB_CheckCull
-            cmp [ebp+0x24],0x0
-            je LAB_CheckCull
-            mov edx,[ebp+0x24]
-            mov edx,[edx]
-            cmp dword ptr [edx],0x12457E8 // cOverlayNode vtable address
-            je LAB_ContinueQuery
-        LAB_CheckCull:
-            test eax,eax
-            jg LAB_Cull
-        LAB_ContinueQuery:
-            jmp FrustumQuery_Exit_1
-        LAB_Cull:
-            jmp FrustumQuery_Exit_2
+            fld [Floats::nhoodSize]
+            fst [ecx+0xC]
+            fstp [ecx+0x10]
+            jmp NodeBoundingBox_Exit
         }
     }
 
     // cOverlayNode::AddSelfToDisplayList
-    // Prevents nodes belonging to lot skirt overlay manager being culled when camera leaves lot bounds
+    // Stops nodes assigned to lot skirt overlay manager being culled when camera leaves lot bounds
     void __declspec(naked) PreventCullingDecals()
     {
         __asm {

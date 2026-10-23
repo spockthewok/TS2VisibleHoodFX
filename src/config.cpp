@@ -11,7 +11,8 @@ namespace
 
 namespace Config
 {
-    std::unordered_set<const char *> blacklistedFX;
+    std::unordered_set<std::string> blacklistGlobal;
+    std::unordered_set<std::string> blacklistLots;
 
     static std::string GetModuleName()
     {
@@ -26,14 +27,20 @@ namespace Config
         return exePath.filename().string();
     }
 
-    static void PopulateBlacklist(const std::string &section)
+    static void PopulateBlacklist(const std::string &section, std::unordered_set<std::string> &blacklist)
     {
+        if (!ini.has(section))
+            return;
+
         const auto &collection = ini[section];
 
         for (const auto &[key, value] : collection)
         {
-            if (!value.empty())
-                blacklistedFX.insert(value.c_str());
+            if constexpr (std::is_same_v<decltype(value), const std::string>)
+            {
+                if (!value.empty())
+                    blacklist.insert(value);
+            }
         }
     }
 
@@ -46,9 +53,10 @@ namespace Config
 
         mINI::INIFile file(configName);
 
-        if (!file.read(ini) || !ini.has("Blacklist"))
+        if (!file.read(ini))
             return;
 
-        PopulateBlacklist("Blacklist");
+        PopulateBlacklist("Global", blacklistGlobal);
+        PopulateBlacklist("Lots", blacklistLots);
     }
 }

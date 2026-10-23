@@ -1,6 +1,8 @@
 #include "fx.h"
 #include "headers.h"
 #include "config.h"
+#include "TS2/base.h"
+#include "TS2/cTSNHoodPropOccupant.h"
 
 namespace
 {
@@ -11,15 +13,40 @@ namespace
 // This is the main driver for activating neighbourhood effects in lot view
 namespace Effects
 {
-    static bool IsBlacklistedEffect(const char *currEffect)
+    static bool IsOccupantInLotBounds(cTSNHoodPropOccupant *propOccupant)
     {
-        if (!currEffect)
-            return true;
+        nTSWorld::cWorldDB *worldDB = TS::WorldDB();
 
-        if (Config::blacklistedFX.size() == 0)
+        if (!worldDB)
             return false;
 
-        return Config::blacklistedFX.contains(currEffect);
+        float coords[3] = {0.0f, 0.0f, 0.0f};
+
+        propOccupant->GetPosition(coords);
+        OffsetPositionToLot(coords);
+
+        float propX = coords[0];
+        float propY = coords[1];
+        float lotX = worldDB->LotSizeX();
+        float lotY = worldDB->LotSizeY();
+
+        if ((propX >= 0 && propX <= lotX) && (propY >= 0 && propY <= lotY))
+            return true;
+
+        return false;
+    }
+
+    static bool IsBlacklistedEffect(cTSNHoodPropOccupant *propOccupant, const char *currProp)
+    {
+        if (!currProp)
+            return true;
+
+        std::string propName(currProp);
+
+        if (Config::blacklistLots.contains(propName))
+            return IsOccupantInLotBounds(propOccupant);
+
+        return Config::blacklistGlobal.contains(propName);
     }
 
     // cNHoodOccupantManager::CreateSceneGraphNodeForPropOccupant
@@ -33,8 +60,9 @@ namespace Effects
             jnz LAB_CreateEffect
         LAB_InLot:
             push [esp+0x30] // Name of current neighbourhood object stored on stack
+            push [esp+0x28]
             call IsBlacklistedEffect
-            add esp,0x4
+            add esp,0x8
             test al,al
             jnz LAB_Skip
         LAB_CreateEffect:

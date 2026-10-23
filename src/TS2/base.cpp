@@ -10,7 +10,8 @@ namespace Floats
 namespace TS
 {
     GetGlobals Globals = reinterpret_cast<GetGlobals>(0x799A0D);
+    GetWorldDB WorldDB = reinterpret_cast<GetWorldDB>(0x799AB9);
     GetGameStateController GameStateController = reinterpret_cast<GetGameStateController>(0x799B65);
 }
 
-const DWORD OffsetPositionToLot = 0xAD0460;
+DoOffsetPositionToLot OffsetPositionToLot = reinterpret_cast<DoOffsetPositionToLot>(0xAD0460);

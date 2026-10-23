@@ -6,6 +6,7 @@ namespace Config
 {
     extern std::unordered_set<std::string> blacklistGlobal;
     extern std::unordered_set<std::string> blacklistLots;
+    extern bool waterSparkles;
 
     void Init();
 }

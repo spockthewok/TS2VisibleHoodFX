@@ -11,4 +11,6 @@ namespace Common
 
         return reinterpret_cast<Fn>(vTable[offset / indexSize]);
     }
+
+    bool IsSameString(const char *strA, const char *strB);
 }

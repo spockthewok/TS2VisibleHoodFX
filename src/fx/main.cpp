@@ -1,4 +1,4 @@
-#include "fx.h"
+#include "fx/main.h"
 #include "headers.h"
 #include "config.h"
 #include "TS2/base.h"
@@ -38,7 +38,7 @@ namespace Effects
 
     static bool IsBlacklistedEffect(cTSNHoodPropOccupant *propOccupant, const char *currProp)
     {
-        if (!currProp)
+        if (!propOccupant || !currProp)
             return true;
 
         std::string propName(currProp);

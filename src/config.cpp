@@ -13,6 +13,7 @@ namespace Config
 {
     std::unordered_set<std::string> blacklistGlobal;
     std::unordered_set<std::string> blacklistLots;
+    bool waterSparkles = false;
 
     static std::string GetModuleName()
     {
@@ -25,6 +26,28 @@ namespace Config
 
         std::filesystem::path exePath(buffer);
         return exePath.filename().string();
+    }
+
+    template <typename T>
+    static T GetIniValue(const std::string &section, const std::string &key, T defaultValue)
+    {
+        if (!ini.has(section) || !ini[section].has(key))
+            return defaultValue;
+
+        const auto &value = ini[section][key];
+
+        if constexpr (std::is_same_v<T, bool>)
+            return (value == "true" || value == "1");
+        else if constexpr (std::is_same_v<T, int>)
+            return std::stoi(value);
+        else if constexpr (std::is_same_v<T, float>)
+            return std::stof(value);
+        else if constexpr (std::is_same_v<T, double>)
+            return std::stod(value);
+        else if constexpr (std::is_same_v<T, std::string>)
+            return value;
+
+        return defaultValue;
     }
 
     static void PopulateBlacklist(const std::string &section, std::unordered_set<std::string> &blacklist)
@@ -58,5 +81,6 @@ namespace Config
 
         PopulateBlacklist("Global", blacklistGlobal);
         PopulateBlacklist("Lots", blacklistLots);
+        waterSparkles = GetIniValue("Other", "waterSparkles", waterSparkles);
     }
 }

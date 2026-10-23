@@ -1,5 +1,5 @@
-#include "decals.h"
-#include "headers.h"
+#include "fx/decals.h"
+#include "common.h"
 #include "TS2/base.h"
 
 namespace
@@ -14,6 +14,7 @@ namespace
     const DWORD AddSelfToDisplayList_Exit_2 = 0xB69DA6;
     const DWORD Init_Exit = 0x101C31D;
 
+    const char decalMaterial[] = "overlaydecalmaterial";
     void *overlayMgr = nullptr;
     char *matName = nullptr;
 }
@@ -91,14 +92,6 @@ namespace Decals
         }
     }
 
-    static bool IsDecalMaterial(const char *currMaterial)
-    {
-        if (!currMaterial)
-            return false;
-
-        return _stricmp(currMaterial, "overlaydecalmaterial") == 0;
-    }
-
     // cTerrainOverlayGeometryBase::SetMaterialState
     // Stashes name of material currently being processed
     // We need this as offset material name is stored at varies when game executes ColourDecals()
@@ -130,8 +123,9 @@ namespace Decals
             jne LAB_Skip
             pushad
             push [matName]
-            call IsDecalMaterial
-            add esp,0x4
+            push offset decalMaterial
+            call Common::IsSameString
+            add esp,0x8
             test al,al
             popad
             jz LAB_Skip

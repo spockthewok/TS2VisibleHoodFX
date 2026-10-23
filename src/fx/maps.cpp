@@ -1,11 +1,12 @@
-#include "maps.h"
+#include "fx/maps.h"
 #include "hooking.h"
+#include "common.h"
+#include "config.h"
 #include "TS2/base.h"
 #include "TS2/cTSSGSystem.h"
 #include "TS2/cTSNHoodTerrain.h"
-#include <string>
-#include <cmath>
 #include <array>
+#include <cmath>
 
 namespace
 {
@@ -13,12 +14,15 @@ namespace
     const DWORD Particles_Init_Exit = 0xFE2EBA;
     const DWORD DoHeightBasedEmit_Exit_1 = 0x101F517;
     const DWORD DoHeightBasedEmit_Exit_2 = 0x101F599;
-    const DWORD MetaParticles_Init_Exit = 0x1021369;
+    const DWORD MetaParticles_Init_Exit_1 = 0x102129A;
+    const DWORD MetaParticles_Init_Exit_2 = 0x1021369;
+    const DWORD MetaParticles_Init_Exit_3 = 0x10213E3;
     const DWORD ApplyTerrainForces_Exit_1 = 0x10217AB;
     const DWORD ApplyTerrainForces_Exit_2 = 0x1021C3C;
     const DWORD UpdateParticlePhysicsTimeStep_Exit_1 = 0x1022498;
     const DWORD UpdateParticlePhysicsTimeStep_Exit_2 = 0x10224DA;
 
+    const char waterSparkleFX[] = "watersparklecontrol";
     bool inLot = false;
 }
 
@@ -98,7 +102,34 @@ namespace Maps
             call [edx+0x1C] // cTSEffectsMap::EffectMap
             mov [esp+0xC],eax // Stash returned effect map vtable pointer
             call FixEffectMap
-            jmp MetaParticles_Init_Exit
+            jmp MetaParticles_Init_Exit_2
+        }
+    }
+
+    // cTSMetaParticlesEffect::Init
+    // Handles creation of water sparkles in lot view based on user config
+    void __declspec(naked) EnableWaterSparkles()
+    {
+        __asm {
+            cmp [inLot],0x0 // Will be initialised by the time water sparkles are processed
+            je LAB_ContinueInit
+            cmp [Config::waterSparkles],0x0
+            jne LAB_ContinueInit
+            mov eax,[esp+0x28]
+            push ecx
+            push [eax]
+            push offset waterSparkleFX
+            call Common::IsSameString
+            add esp,0x8
+            pop ecx
+            test al,al
+            jnz LAB_Exit
+        LAB_ContinueInit:
+            mov esi,ecx
+            mov al,[esi+0xC]
+            jmp MetaParticles_Init_Exit_1
+        LAB_Exit:
+            jmp MetaParticles_Init_Exit_3
         }
     }
 

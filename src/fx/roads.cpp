@@ -1,5 +1,5 @@
 #define _USE_MATH_DEFINES
-#include "roads.h"
+#include "fx/roads.h"
 #include "hooking.h"
 #include "TS2/base.h"
 #include <math.h>
@@ -20,35 +20,6 @@ namespace
 
 namespace Roads
 {
-    // This does something similar to nGZNumerics::EulerToQuaternion used by props and flora
-    // We need our own function as bridge orientation is already in quaternion form
-    static void SetOrientation(float *cQuaternion, int orientation)
-    {
-        float degrees = orientation * 90.0f;
-        float radians = degrees * (M_PI / 180.0f);
-
-        // These vars are a bit unnecessary, but they help to reduce line length :/
-        float currX = cQuaternion[0];
-        float currY = cQuaternion[1];
-        float currZ = cQuaternion[2];
-        float currW = cQuaternion[3];
-
-        float rotX = 0.0f;
-        float rotY = 0.0f;
-        float rotZ = sinf(radians * 0.5f);
-        float rotW = cosf(radians * 0.5f);
-
-        float x = (currX * rotW) + (currW * rotX) + (currZ * rotY) - (currY * rotZ);
-        float y = (currY * rotW) - (currZ * rotX) + (currW * rotY) + (currX * rotZ);
-        float z = (currZ * rotW) + (currY * rotX) - (currX * rotY) + (currW * rotZ);
-        float w = (currW * rotW) - (currX * rotX) - (currY * rotY) - (currZ * rotZ);
-
-        cQuaternion[0] = x;
-        cQuaternion[1] = y;
-        cQuaternion[2] = z;
-        cQuaternion[3] = w;
-    }
-
     // cNHoodOccupantManager::CreateMergedRoadGeometry
     // Changes jump location for lots from early exit to bridge setup
     // We skip road occupant creation as lot skirt has its own road variants
@@ -109,17 +80,46 @@ namespace Roads
         }
     }
 
+    // This does something similar to nGZNumerics::EulerToQuaternion used by props and flora
+    // We need our own function as bridge orientation is already in quaternion form
+    static void SetRotation(float *cQuaternion, const UINT rotation)
+    {
+        float degrees = rotation * 90.0f;
+        float radians = degrees * (M_PI / 180.0f);
+
+        // These vars are a bit unnecessary, but they help to reduce line length :/
+        float currX = cQuaternion[0];
+        float currY = cQuaternion[1];
+        float currZ = cQuaternion[2];
+        float currW = cQuaternion[3];
+
+        float rotX = 0.0f;
+        float rotY = 0.0f;
+        float rotZ = sinf(radians * 0.5f);
+        float rotW = cosf(radians * 0.5f);
+
+        float x = (currX * rotW) + (currW * rotX) + (currZ * rotY) - (currY * rotZ);
+        float y = (currY * rotW) - (currZ * rotX) + (currW * rotY) + (currX * rotZ);
+        float z = (currZ * rotW) + (currY * rotX) - (currX * rotY) + (currW * rotZ);
+        float w = (currW * rotW) - (currX * rotX) - (currY * rotY) - (currZ * rotZ);
+
+        cQuaternion[0] = x;
+        cQuaternion[1] = y;
+        cQuaternion[2] = z;
+        cQuaternion[3] = w;
+    }
+
     // cNHoodOccupantManager::CreateSceneGraphNodeForRoadOccupantWithModel
-    // Rotates bridges to match current world orientation
+    // Orients bridges to match current world rotation
     void __declspec(naked) RotateBridges()
     {
         __asm {
             pushad
             mov edx,[esp+0x24]
-            push [edx+0xC4] // Scene orientation (0/1/2/3)
+            push [edx+0xC4] // Scene rotation (0/1/2/3)
             lea edx,[esp+0x7C] // Bridge cQuaternion
             push edx
-            call SetOrientation
+            call SetRotation
             add esp,0x8
             popad
             mov ecx,[esp+0x8C]

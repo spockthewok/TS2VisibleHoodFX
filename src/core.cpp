@@ -1,10 +1,10 @@
 #include "core.h"
 #include "hooking.h"
 #include "config.h"
-#include "fx.h"
-#include "decals.h"
-#include "maps.h"
-#include "roads.h"
+#include "fx/main.h"
+#include "fx/decals.h"
+#include "fx/maps.h"
+#include "fx/roads.h"
 
 namespace Core
 {
@@ -20,6 +20,7 @@ namespace Core
         Hooking::MakeJMP((BYTE *)0xB67B10, (DWORD)Decals::ColourDecals, 7);
         Hooking::MakeJMP((BYTE *)0xFE2EB5, (DWORD)Maps::FixParticleEffectMap, 5);
         Hooking::MakeJMP((BYTE *)0x1021364, (DWORD)Maps::FixMetaParticleEffectMap, 5);
+        Hooking::MakeJMP((BYTE *)0x1021295, (DWORD)Maps::EnableWaterSparkles, 5);
         Hooking::MakeJMP((BYTE *)0xB7EBAE, (DWORD)Maps::IncreaseLotBoundingRect, 5);
         Hooking::MakeJMP((BYTE *)0xB7ECB0, (DWORD)Maps::GetRelativeWaterLevel, 6);
         Maps::HandleNegativeValues();

@@ -10,7 +10,6 @@
 namespace
 {
     const DWORD GetBoundingRect_Exit = 0xB7EBDE;
-    const DWORD WaterLevel_Exit = 0xB7ECB6;
     const DWORD Particles_Init_Exit = 0xFE2EBA;
     const DWORD DoHeightBasedEmit_Exit_1 = 0x101F517;
     const DWORD DoHeightBasedEmit_Exit_2 = 0x101F599;
@@ -129,10 +128,11 @@ namespace Maps
         if (!lotSkirt)
             return 0.0f;
 
-        return *reinterpret_cast<float *>(lotSkirt + 0xB4);
+        return lotSkirt->SeaLevel();
     }
 
-    static void TranslateCoords(std::array<float, 2> &coords)
+    // This is a custom version of cLotSkirt::TranslateLotCoordsToNhoodCoords
+    static void TranslateEffectCoordsToNhoodCoords(std::array<float, 2> &coords)
     {
         nTSSG::cTSSGSystem *system = *reinterpret_cast<nTSSG::cTSSGSystem **>(0x1478F10);
         nTSSG::cLotSkirt *lotSkirt = system->LotSkirt();
@@ -140,28 +140,29 @@ namespace Maps
         if (!lotSkirt)
             return;
 
-        lotSkirt = reinterpret_cast<nTSSG::cLotSkirt *>(lotSkirt - 0x8);
-
-        UINT rotation = *reinterpret_cast<UINT *>(lotSkirt + 0xF4);
-        float offsetX = static_cast<float>(*reinterpret_cast<int *>(lotSkirt + 0xF8) * 10);
-        float offsetY = static_cast<float>(*reinterpret_cast<int *>(lotSkirt + 0xFC) * 10);
+        const UINT rotation = lotSkirt->GetRotation();
+        const float offsetX = static_cast<float>(lotSkirt->GetOffsetX() * 10);
+        const float offsetY = static_cast<float>(lotSkirt->GetOffsetY() * 10);
         float currX = coords[0];
         float currY = coords[1];
 
         switch (rotation)
         {
         case 1:
-        case 3:
-            coords[0] = -currY;
-            coords[1] = -currX;
+            currX = coords[1];
+            currY = -coords[0];
             break;
         case 2:
-            coords[0] = offsetX - currX;
-            coords[1] = offsetY - currY;
-            return;
+            currX = -coords[0];
+            currY = -coords[1];
+            break;
+        case 3:
+            currX = -coords[1];
+            currY = coords[0];
         }
 
-        lotSkirt->TranslateLotCoordsToNhoodCoords(coords[0], coords[1], &coords[0], &coords[1]);
+        coords[0] = offsetX + currX;
+        coords[1] = offsetY + currY;
     }
 
     static float GetHeightAtPosition(const float x, const float y)
@@ -172,19 +173,19 @@ namespace Maps
         cTSLotInfo *lotInfo = gameState->CurrentLotInfo();
 
         if (!nhoodTerrain || !lotInfo)
-            return 0.0f;
+            return Floats::nhoodSize; // Return large value so later checks fail
 
         std::array<float, 2> coords = {x, y};
 
-        TranslateCoords(coords);
+        TranslateEffectCoordsToNhoodCoords(coords);
 
         float terrainHeight = nhoodTerrain->GetTerrainHeight(coords[0], coords[1]);
         float offsetZ = lotInfo->NHoodToLotHeightOffset();
 
         if (std::isnan(terrainHeight) || std::isinf(terrainHeight) || terrainHeight == 0)
-            return Floats::nhoodSize; // Return large value so later checks fail
+            return Floats::nhoodSize;
 
-        // Game later subtracts water level from this value
+        // Game will subtract water level from this value
         // Because lot water level is negative, calculation becomes height + lotWaterLvl
         // Equivalent to terrainHeight - nhoodWaterLvl, which is what nhood uses to get height
         return terrainHeight - offsetZ;
@@ -229,7 +230,7 @@ namespace Maps
             currY += (Floats::nhoodSize / 2);
         }
 
-        if (currX < 0 || currY < 0 || currX > Floats::nhoodSize || currY > Floats::nhoodSize)
+        if (currX <= 0 || currY <= 0 || currX >= Floats::nhoodSize || currY >= Floats::nhoodSize)
             return false;
 
         return true;

@@ -6,6 +6,10 @@ namespace nTSSG
     class cLotSkirt
     {
     public:
-        void TranslateLotCoordsToNhoodCoords(float x, float y, float *newX, float *newY);
+        // Not real methods belonging to this class
+        float SeaLevel();
+        UINT GetRotation();
+        int GetOffsetX();
+        int GetOffsetY();
     };
 }

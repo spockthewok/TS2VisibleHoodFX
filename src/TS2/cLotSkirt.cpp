@@ -2,10 +2,23 @@
 
 namespace nTSSG
 {
-    void cLotSkirt::TranslateLotCoordsToNhoodCoords(float x, float y, float *newX, float *newY)
+    float cLotSkirt::SeaLevel()
     {
-        using Func = void(__thiscall *)(cLotSkirt *, float, float, float *, float *);
-        auto func = reinterpret_cast<Func>(0xA7DD90);
-        func(this, x, y, newX, newY);
+        return *reinterpret_cast<float *>(this + 0xB4);
+    }
+
+    UINT cLotSkirt::GetRotation()
+    {
+        return *reinterpret_cast<UINT *>(this + 0xEC);
+    }
+
+    int cLotSkirt::GetOffsetX()
+    {
+        return *reinterpret_cast<int *>(this + 0xF0);
+    }
+
+    int cLotSkirt::GetOffsetY()
+    {
+        return *reinterpret_cast<int *>(this + 0xF4);
     }
 }

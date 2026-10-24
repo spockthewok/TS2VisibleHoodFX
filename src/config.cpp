@@ -14,6 +14,7 @@ namespace Config
     std::unordered_set<std::string> blacklistGlobal;
     std::unordered_set<std::string> blacklistLots;
     bool waterSparkles = false;
+    bool lotBridges = true;
 
     static std::string GetModuleName()
     {
@@ -82,5 +83,6 @@ namespace Config
         PopulateBlacklist("Global", blacklistGlobal);
         PopulateBlacklist("Lots", blacklistLots);
         waterSparkles = GetIniValue("Other", "waterSparkles", waterSparkles);
+        lotBridges = GetIniValue("Other", "lotBridges", lotBridges);
     }
 }

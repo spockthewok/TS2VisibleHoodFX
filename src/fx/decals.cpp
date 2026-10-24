@@ -1,5 +1,5 @@
 #include "fx/decals.h"
-#include "common.h"
+#include "headers.h"
 #include "TS2/base.h"
 
 namespace
@@ -50,7 +50,7 @@ namespace Decals
 
     // cNHoodTerrain::CreateSceneGraphNodesAndGeometryBuilders
     // Nullifies pointer to stashed lot skirt overlay manager when transitioning to neighbourhood
-    // Necessary otherwise decals will still be attached to lot skirt manager and won't be drawn in hood
+    // Necessary or decals will still be attached to lot skirt manager and won't be drawn in nhood
     void __declspec(naked) ResetOverlayManager()
     {
         __asm {
@@ -124,11 +124,11 @@ namespace Decals
             pushad
             push [matName]
             push offset decalMaterial
-            call Common::IsSameString
+            call _stricmp
             add esp,0x8
-            test al,al
+            test eax,eax
             popad
-            jz LAB_Skip
+            jnz LAB_Skip
         LAB_ColourDecal:
             jmp SetMaterialState_Exit_2
         LAB_Skip:

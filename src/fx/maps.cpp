@@ -1,6 +1,5 @@
 #include "fx/maps.h"
 #include "hooking.h"
-#include "common.h"
 #include "config.h"
 #include "TS2/base.h"
 #include "TS2/cTSSGSystem.h"
@@ -29,14 +28,18 @@ namespace
 // This is for fixing issues with effects tied to an effect map
 namespace Maps
 {
-    static bool IsInLot(const char *currLotName)
+    static bool IsInLot()
     {
         inLot = false;
 
-        if (!currLotName)
+        cTSGameStateController *gameState = TS::GameStateController();
+        cTSLotInfo *lotInfo = gameState->CurrentLotInfo();
+
+        if (!lotInfo)
             return inLot;
 
-        std::string lotName(currLotName);
+        // Game thinks we're still in nhood at this point, so we check lot name to determine state
+        std::string lotName(*reinterpret_cast<const char **>(lotInfo + 0x1C));
 
         // All lot names follow this structure: "NHoodID-LotX", where X is lot number
         // CAS lots are either "CAS!" or "YACAS!"
@@ -49,37 +52,21 @@ namespace Maps
 
     // Many lot effects are started before game sets lot state and switches to lot effect map
     // This causes them to be assigned to nhood effect map and therefore never appear in lot view
-    // Game thinks we're still in nhood, so we check name of lot being loaded to determine state
-    // If we are loading a valid lot, we manually get lot effect map and assign it to effect
-    static void __declspec(naked) FixEffectMap()
+    static uintptr_t GetLotEffectMap(uintptr_t cITSEffectMap)
     {
-        __asm {
-            cmp dword ptr [eax],0x12476B4 // Skip if already pointing to lot effect map vtable
-            je LAB_Return
-            call TS::GameStateController
-            mov edx,[eax]
-            mov ecx,eax
-            call [edx+0x24] // cTSGameStateController::CurrentLotInfo
-            test eax,eax
-            jz LAB_Return
-            push [eax+0x1C] // Object var holding current lot name
-            call IsInLot
-            add esp,0x4
-            test al,al
-            jz LAB_Return
-            mov eax,dword ptr ds:[0x1478F10] // nTSSG::TSSGSystem
-            mov edx,[eax]
-            mov ecx,eax
-            call [edx+0x9C] // cTSSGSystem::Terrain
-            test eax,eax
-            jz LAB_Return
-            mov eax,[eax+0x40] // cTerrainGeometryData object
-            add eax,0x8 // Object var holding vtable address for lot effect map
-            mov [esp+0x10],eax
-        LAB_Return:
-            mov eax,[esp+0x10] // Restore stashed effect map vtable pointer
-            ret
-        }
+        // Skip if already pointing to lot effect map vtable
+        if (*reinterpret_cast<DWORD *>(cITSEffectMap) == 0x12476B4 || !IsInLot())
+            return cITSEffectMap;
+
+        nTSSG::cTSSGSystem *system = *reinterpret_cast<nTSSG::cTSSGSystem **>(0x1478F10);
+        uintptr_t cTerrain = system->Terrain();
+
+        if (!cTerrain)
+            return cITSEffectMap;
+
+        uintptr_t cTerrainGeometryData = *reinterpret_cast<uintptr_t *>(cTerrain + 0x40);
+
+        return static_cast<uintptr_t>(cTerrainGeometryData + 0x8);
     }
 
     // cTSParticlesEffect::Init
@@ -88,9 +75,35 @@ namespace Maps
         __asm {
             mov ecx,eax
             call [edx+0x1C] // cTSEffectsMap::EffectMap
-            mov [esp+0xC],eax // Stash returned effect map vtable pointer
-            call FixEffectMap
+            push eax
+            call GetLotEffectMap
+            add esp,0x4
             jmp Particles_Init_Exit
+        }
+    }
+
+    // cTSMetaParticlesEffect::Init
+    // Handles creation of water sparkles in lot view based on user config
+    void __declspec(naked) EnableWaterSparkles()
+    {
+        __asm {
+            mov esi,ecx
+            cmp [inLot],0x0 // Particles init before meta particles, so var will already be set
+            je LAB_ContinueInit
+            cmp [Config::waterSparkles],0x0
+            jne LAB_ContinueInit
+            mov eax,[esp+0x28]
+            push [eax]
+            push offset waterSparkleFX
+            call _stricmp
+            add esp,0x8
+            test eax,eax
+            jz LAB_Exit
+        LAB_ContinueInit:
+            mov al,[esi+0xC]
+            jmp MetaParticles_Init_Exit_1
+        LAB_Exit:
+            jmp MetaParticles_Init_Exit_3
         }
     }
 
@@ -100,36 +113,10 @@ namespace Maps
         __asm {
             mov ecx,eax
             call [edx+0x1C] // cTSEffectsMap::EffectMap
-            mov [esp+0xC],eax // Stash returned effect map vtable pointer
-            call FixEffectMap
+            push eax
+            call GetLotEffectMap
+            add esp,0x4
             jmp MetaParticles_Init_Exit_2
-        }
-    }
-
-    // cTSMetaParticlesEffect::Init
-    // Handles creation of water sparkles in lot view based on user config
-    void __declspec(naked) EnableWaterSparkles()
-    {
-        __asm {
-            cmp [inLot],0x0 // Will be initialised by the time water sparkles are processed
-            je LAB_ContinueInit
-            cmp [Config::waterSparkles],0x0
-            jne LAB_ContinueInit
-            mov eax,[esp+0x28]
-            push ecx
-            push [eax]
-            push offset waterSparkleFX
-            call Common::IsSameString
-            add esp,0x8
-            pop ecx
-            test al,al
-            jnz LAB_Exit
-        LAB_ContinueInit:
-            mov esi,ecx
-            mov al,[esi+0xC]
-            jmp MetaParticles_Init_Exit_1
-        LAB_Exit:
-            jmp MetaParticles_Init_Exit_3
         }
     }
 
@@ -253,15 +240,32 @@ namespace Maps
 
         float currX = x;
         float currY = y;
+        float minX = 0.0f;
+        float minY = 0.0f;
+        float maxX = Floats::nhoodSize;
+        float maxY = Floats::nhoodSize;
 
         if (inLot)
         {
             // Convert effect map coords (-640-640) to lot skirt coords (0-1280)
             currX += (Floats::nhoodSize / 2);
             currY += (Floats::nhoodSize / 2);
+
+            nTSSG::cTSSGSystem *system = *reinterpret_cast<nTSSG::cTSSGSystem **>(0x1478F10);
+            nTSSG::cLotSkirt *lotSkirt = system->LotSkirt();
+
+            if (lotSkirt)
+            {
+                // Adjust min/max bounds according to in-game view distance settings
+                const int *bounds = lotSkirt->GetBounds();
+                minX = static_cast<float>((bounds[0] - 1) * 10);
+                minY = static_cast<float>((bounds[1] - 1) * 10);
+                maxX = static_cast<float>((bounds[2] + 1) * 10);
+                maxY = static_cast<float>((bounds[3] + 1) * 10);
+            }
         }
 
-        if (currX <= 0 || currY <= 0 || currX >= Floats::nhoodSize || currY >= Floats::nhoodSize)
+        if (currX <= minX || currY <= minY || currX >= maxX || currY >= maxY)
             return false;
 
         return true;

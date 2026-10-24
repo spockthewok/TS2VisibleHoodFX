@@ -7,9 +7,10 @@ namespace nTSSG
     {
     public:
         // Not real methods belonging to this class
-        float SeaLevel();
-        UINT GetRotation();
-        int GetOffsetX();
-        int GetOffsetY();
+        const int *GetBounds() const;
+        float SeaLevel() const;
+        UINT GetRotation() const;
+        int GetOffsetX() const;
+        int GetOffsetY() const;
     };
 }

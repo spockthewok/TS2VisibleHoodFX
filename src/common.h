@@ -11,4 +11,7 @@ namespace Common
 
         return reinterpret_cast<Fn>(vTable[offset / indexSize]);
     }
+
+    float GetNHoodSizeX();
+    float GetNHoodSizeY();
 }

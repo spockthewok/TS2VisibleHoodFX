@@ -1,5 +1,5 @@
 #include "fx/decals.h"
-#include "headers.h"
+#include "common.h"
 #include "TS2/base.h"
 
 namespace
@@ -65,8 +65,11 @@ namespace Decals
     void __declspec(naked) IncreaseOverlayBoundingBox()
     {
         __asm {
-            fld [Floats::nhoodSize]
-            fst [ecx+0xC]
+            call Common::GetNHoodSizeX
+            mov ecx,[esp+0x1C]
+            fstp [ecx+0xC]
+            call Common::GetNHoodSizeY
+            mov ecx,[esp+0x1C]
             fstp [ecx+0x10]
             jmp NodeBoundingBox_Exit
         }

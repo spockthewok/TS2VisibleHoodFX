@@ -2,7 +2,7 @@
 
 namespace Floats
 {
-    // All TS2 neighbourhoods are small SC4 maps of this size
+    // All vanilla TS2 neighbourhoods are small SC4 maps of this size
     const float nhoodSize = 1280.0f;
 }
 

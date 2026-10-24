@@ -1,6 +1,7 @@
 #include "fx/maps.h"
 #include "hooking.h"
 #include "config.h"
+#include "common.h"
 #include "TS2/base.h"
 #include "TS2/cTSSGSystem.h"
 #include "TS2/cTSNHoodTerrain.h"
@@ -127,8 +128,10 @@ namespace Maps
     void __declspec(naked) IncreaseLotBoundingRect()
     {
         __asm {
-            fld [Floats::nhoodSize]
-            fst [edx]
+            call Common::GetNHoodSizeX
+            mov edx,[esp+0xC]
+            fstp [edx]
+            call Common::GetNHoodSizeY
             jmp GetBoundingRect_Exit
         }
     }
@@ -242,14 +245,14 @@ namespace Maps
         float currY = y;
         float minX = 0.0f;
         float minY = 0.0f;
-        float maxX = Floats::nhoodSize;
-        float maxY = Floats::nhoodSize;
+        float maxX = Common::GetNHoodSizeX();
+        float maxY = Common::GetNHoodSizeY();
 
         if (inLot)
         {
             // Convert effect map coords (-640-640) to lot skirt coords (0-1280)
-            currX += (Floats::nhoodSize / 2);
-            currY += (Floats::nhoodSize / 2);
+            currX += (maxX / 2);
+            currY += (maxY / 2);
 
             nTSSG::cTSSGSystem *system = *reinterpret_cast<nTSSG::cTSSGSystem **>(0x1478F10);
             nTSSG::cLotSkirt *lotSkirt = system->LotSkirt();

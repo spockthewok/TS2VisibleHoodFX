@@ -4,6 +4,11 @@
 #include "TS2/cTSGameStateController.h"
 #include "TS2/cLotSkirt.h"
 
+namespace Module
+{
+    extern DWORD base;
+}
+
 namespace Floats
 {
     extern const float nhoodSize;

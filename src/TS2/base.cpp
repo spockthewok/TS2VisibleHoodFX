@@ -1,5 +1,10 @@
 #include "TS2/base.h"
 
+namespace Module
+{
+    DWORD base = 0x400000; // Default module base address
+}
+
 namespace Floats
 {
     // All vanilla TS2 neighbourhoods are small SC4 maps of this size

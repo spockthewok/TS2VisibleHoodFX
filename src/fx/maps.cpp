@@ -26,7 +26,7 @@ namespace
     bool inLot = false;
 }
 
-// This is for fixing issues with effects tied to an effect map
+// Fixes issues with effects tied to an effect map
 namespace Maps
 {
     static bool IsInLot()
@@ -333,15 +333,15 @@ namespace Maps
     void HandleNegativeValues()
     {
         // cTerrainGeometryData::Height
-        Hooking::MakeJMP((BYTE *)0xB7F1B0, (DWORD)ReplaceHeightChecks, 6);
+        Hooking::MakeJMP((BYTE *)(0x77F1B0 + Module::base), (DWORD)ReplaceHeightChecks, 6);
 
         // cTSMetaParticlesEffect::DoHeightBasedEmit
-        Hooking::MakeJMP((BYTE *)0x101F4C7, (DWORD)ReplacePositionChecks1, 6);
+        Hooking::MakeJMP((BYTE *)(0xC1F4C7 + Module::base), (DWORD)ReplacePositionChecks1, 6);
 
         // cTSMetaParticlesEffect::ApplyTerrainForces
-        Hooking::MakeJMP((BYTE *)0x102175B, (DWORD)ReplacePositionChecks2, 6);
+        Hooking::MakeJMP((BYTE *)(0xC2175B + Module::base), (DWORD)ReplacePositionChecks2, 6);
 
         // cTSMetaParticlesEffect::UpdateParticlePhysicsTimeStep
-        Hooking::MakeJMP((BYTE *)0x1022458, (DWORD)ReplacePositionChecks3, 6);
+        Hooking::MakeJMP((BYTE *)(0xC22458 + Module::base), (DWORD)ReplacePositionChecks3, 6);
     }
 }

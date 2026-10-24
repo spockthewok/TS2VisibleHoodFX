@@ -18,6 +18,7 @@ namespace
                              0x90, 0x90, 0x90, 0x90}; // NOP
 }
 
+// Creates neighbourhood bridges in lot view
 namespace Roads
 {
     // cNHoodOccupantManager::CreateMergedRoadGeometry
@@ -26,7 +27,7 @@ namespace Roads
     // Two push instructions moved before jump to account for this (preserves stack layout)
     void AllowBridgesInLot()
     {
-        Hooking::WriteToMemory((DWORD)0xAD54A6, roadSkip, sizeof(roadSkip));
+        Hooking::WriteToMemory((DWORD)(0x6D54A6 + Module::base), roadSkip, sizeof(roadSkip));
     }
 
     // cNHoodOccupantManager::CreateMergedRoadGeometry
@@ -35,9 +36,9 @@ namespace Roads
     void PreserveOccupantManager()
     {
         // MOV ESI,[ESI+0x64] -> MOV ECX,[ESI+0x64]
-        Hooking::WriteToMemory((DWORD)0xAD559F, &ecxReg[0], sizeof(ecxReg[0]));
+        Hooking::WriteToMemory((DWORD)(0x6D559F + Module::base), &ecxReg[0], sizeof(ecxReg[0]));
         // PUSH ESI -> PUSH ECX
-        Hooking::WriteToMemory((DWORD)0xAD55A6, &ecxReg[1], sizeof(ecxReg[1]));
+        Hooking::WriteToMemory((DWORD)(0x6D55A6 + Module::base), &ecxReg[1], sizeof(ecxReg[1]));
     }
 
     // cNHoodOccupantManager::CreateMergedRoadGeometry

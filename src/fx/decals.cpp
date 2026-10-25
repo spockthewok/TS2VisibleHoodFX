@@ -1,6 +1,7 @@
 #include "fx/decals.h"
 #include "common.h"
 #include "TS2/base.h"
+#include "TS2/cTSSGSystem.h"
 
 namespace
 {
@@ -12,6 +13,7 @@ namespace
     const DWORD SetMaterialState_Exit_3 = 0xB67C9D;
     const DWORD AddSelfToDisplayList_Exit_1 = 0xB69D80;
     const DWORD AddSelfToDisplayList_Exit_2 = 0xB69DA6;
+    const DWORD SetVertexDataStateAndDrawPart_Exit = 0xB6A201;
     const DWORD Init_Exit = 0x101C31D;
 
     const char decalMaterial[] = "overlaydecalmaterial";
@@ -19,7 +21,7 @@ namespace
     char *matName = nullptr;
 }
 
-// This is for fixing quirks/bugs with decal effects in lot view
+// Fixes quirks/bugs with decal effects in lot view
 namespace Decals
 {
     // cLotSkirt::TurnOnDisplay
@@ -136,6 +138,49 @@ namespace Decals
             jmp SetMaterialState_Exit_2
         LAB_Skip:
             jmp SetMaterialState_Exit_3
+        }
+    }
+
+    static void ClampBounds(int *bounds)
+    {
+        nTSSG::cTSSGSystem *system = *reinterpret_cast<nTSSG::cTSSGSystem **>(0x1478F10);
+        nTSSG::cLotSkirt *lotSkirt = system->LotSkirt();
+
+        if (!lotSkirt)
+            return;
+
+        const int *lotSkirtBounds = lotSkirt->GetBounds();
+        int currX = bounds[2];
+        int currY = bounds[3];
+        int maxX = lotSkirtBounds[2];
+        int maxY = lotSkirtBounds[3];
+
+        if (currX > maxX)
+        {
+            bounds[0] -= maxX - currX;
+            bounds[2] = maxX;
+        }
+
+        if (currY > maxY)
+        {
+            bounds[1] -= maxY - currY;
+            bounds[3] = maxY;
+        }
+    }
+
+    // cLotSkirtOverlayGeometry::SetVertexDataStateAndDrawPart
+    // Lot skirt vertex bounds are set to max + 1 for the terrain fade effect
+    // Presumably no height data for this region as z for overlay verts overlapping bounds defaults to 0
+    // This causes the affected verts to stretch into the sky
+    void __declspec(naked) CheckOverlayBounds()
+    {
+        __asm {
+            call [eax+0x2C] // cOverlayNode::OverlayInfo
+            mov edi,eax
+            push edi
+            call ClampBounds
+            add esp,0x4
+            jmp SetVertexDataStateAndDrawPart_Exit
         }
     }
 }

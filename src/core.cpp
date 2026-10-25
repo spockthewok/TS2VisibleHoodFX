@@ -22,6 +22,7 @@ namespace Core
         Hooking::MakeJMP((BYTE *)(0x766AB6 + Module::base), (DWORD)Decals::IncreaseOverlayBoundingBox, 7);
         Hooking::MakeJMP((BYTE *)(0x7677B5 + Module::base), (DWORD)Decals::GetCurrentMaterial, 6);
         Hooking::MakeJMP((BYTE *)(0x767B10 + Module::base), (DWORD)Decals::ColourDecals, 7);
+        Hooking::MakeJMP((BYTE *)(0x76A1FC + Module::base), (DWORD)Decals::CheckOverlayBounds, 5);
 
         // Effect Maps
         Hooking::MakeJMP((BYTE *)(0xBE2EB5 + Module::base), (DWORD)Maps::FixParticleEffectMap, 5);

@@ -4,4 +4,5 @@
 *.pdb
 
 .vscode
+Makefile
 src/include/ini.h

@@ -10,9 +10,9 @@ namespace nTSSG
         return vFunc(this);
     }
 
-    uintptr_t cTSSGSystem::Terrain()
+    void *cTSSGSystem::Terrain()
     {
-        using Func = uintptr_t(__thiscall *)(cTSSGSystem *);
+        using Func = void *(__thiscall *)(cTSSGSystem *);
         auto vFunc = Common::GetVTableFn<Func>(this, 0x9C);
         return vFunc(this);
     }

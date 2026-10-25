@@ -53,21 +53,21 @@ namespace Maps
 
     // Many lot effects are started before game sets lot state and switches to lot effect map
     // This causes them to be assigned to nhood effect map and therefore never appear in lot view
-    static uintptr_t GetLotEffectMap(uintptr_t cITSEffectMap)
+    static void *GetLotEffectMap(void *cITSEffectMap)
     {
         // Skip if already pointing to lot effect map vtable
         if (*reinterpret_cast<DWORD *>(cITSEffectMap) == 0x12476B4 || !IsInLot())
             return cITSEffectMap;
 
         nTSSG::cTSSGSystem *system = *reinterpret_cast<nTSSG::cTSSGSystem **>(0x1478F10);
-        uintptr_t cTerrain = system->Terrain();
+        uintptr_t cTerrain = reinterpret_cast<uintptr_t>(system->Terrain());
 
         if (!cTerrain)
             return cITSEffectMap;
 
         uintptr_t cTerrainGeometryData = *reinterpret_cast<uintptr_t *>(cTerrain + 0x40);
 
-        return static_cast<uintptr_t>(cTerrainGeometryData + 0x8);
+        return reinterpret_cast<void *>(cTerrainGeometryData + 0x8);
     }
 
     // cTSParticlesEffect::Init

@@ -9,4 +9,5 @@ namespace Decals
     extern "C" void PreventCullingDecals();
     extern "C" void GetCurrentMaterial();
     extern "C" void ColourDecals();
+    extern "C" void CheckOverlayBounds();
 }

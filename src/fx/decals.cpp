@@ -141,7 +141,7 @@ namespace Decals
         }
     }
 
-    static void ClampBounds(int *bounds)
+    static void ClampBounds(int *currBounds)
     {
         nTSSG::cTSSGSystem *system = *reinterpret_cast<nTSSG::cTSSGSystem **>(0x1478F10);
         nTSSG::cLotSkirt *lotSkirt = system->LotSkirt();
@@ -149,22 +149,22 @@ namespace Decals
         if (!lotSkirt)
             return;
 
-        const int *lotSkirtBounds = lotSkirt->GetBounds();
-        int currX = bounds[2];
-        int currY = bounds[3];
-        int maxX = lotSkirtBounds[2];
-        int maxY = lotSkirtBounds[3];
+        const int *maxBounds = lotSkirt->GetBounds();
+        int currX = currBounds[2];
+        int currY = currBounds[3];
+        int maxX = maxBounds[2] + 1;
+        int maxY = maxBounds[3] + 1;
 
         if (currX > maxX)
         {
-            bounds[0] -= maxX - currX;
-            bounds[2] = maxX;
+            currBounds[0] -= maxX - currX;
+            currBounds[2] = maxX;
         }
 
         if (currY > maxY)
         {
-            bounds[1] -= maxY - currY;
-            bounds[3] = maxY;
+            currBounds[1] -= maxY - currY;
+            currBounds[3] = maxY;
         }
     }
 

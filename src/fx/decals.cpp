@@ -1,7 +1,9 @@
+#define NOMINMAX
 #include "fx/decals.h"
 #include "common.h"
 #include "TS2/base.h"
 #include "TS2/cTSSGSystem.h"
+#include <algorithm>
 
 namespace
 {
@@ -149,27 +151,17 @@ namespace Decals
         if (!lotSkirt)
             return;
 
-        const int *maxBounds = lotSkirt->GetBounds();
-        int currX = currBounds[2];
-        int currY = currBounds[3];
-        int maxX = maxBounds[2] + 1;
-        int maxY = maxBounds[3] + 1;
+        int minX = *reinterpret_cast<int *>(lotSkirt + 0xD0);
+        int minY = *reinterpret_cast<int *>(lotSkirt + 0xD4);
+        int maxX = *reinterpret_cast<int *>(lotSkirt + 0xD8);
+        int maxY = *reinterpret_cast<int *>(lotSkirt + 0xDC);
 
-        if (currX > maxX)
-        {
-            currBounds[0] -= maxX - currX;
-            currBounds[2] = maxX;
-        }
-
-        if (currY > maxY)
-        {
-            currBounds[1] -= maxY - currY;
-            currBounds[3] = maxY;
-        }
+        currBounds[2] = std::min(currBounds[2], maxX - minX);
+        currBounds[3] = std::min(currBounds[3], maxY - minY);
     }
 
     // cLotSkirtOverlayGeometry::SetVertexDataStateAndDrawPart
-    // Lot skirt vertex bounds are set to max + 1 for the terrain fade effect
+    // Lot skirt vertex bounds are set to max + 1
     // Presumably no height data for this region as z for overlay verts overlapping bounds defaults to 0
     // This causes the affected verts to stretch into the sky
     void __declspec(naked) CheckOverlayBounds()

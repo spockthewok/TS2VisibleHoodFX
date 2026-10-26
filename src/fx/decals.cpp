@@ -115,8 +115,8 @@ namespace Decals
 
     // cTerrainOverlayGeometryBase::SetMaterialState
     // Allows decals to receive proper colouring in lot view so they're not overly bright at night
-    // Checks material name and that call came from cLotSkirtOverlayGeometry to avoid affecting lot shadows
-    // Does similar test for nhood to replace constant _strnicmp check game was performing even in lot view
+    // Checks caller and material name to avoid affecting lot shadows
+    // Does similar test for nhood to replace constant _strnicmp check game was performing
     void __declspec(naked) ColourDecals()
     {
         __asm {
@@ -151,6 +151,8 @@ namespace Decals
         if (!lotSkirt)
             return;
 
+        // Same maths used in cLotSkirt::GetLotSkirtVertexHeights without incrementing max bounds
+        // We don't patch GetLotSkirtVertexHeights directly as we would break overlay positioning
         int minX = *reinterpret_cast<int *>(lotSkirt + 0xD0);
         int minY = *reinterpret_cast<int *>(lotSkirt + 0xD4);
         int maxX = *reinterpret_cast<int *>(lotSkirt + 0xD8);
@@ -162,8 +164,8 @@ namespace Decals
 
     // cLotSkirtOverlayGeometry::SetVertexDataStateAndDrawPart
     // Lot skirt vertex bounds are set to max + 1
-    // Presumably no height data for this region as z for overlay verts overlapping bounds defaults to 0
-    // This causes the affected verts to stretch into the sky
+    // Presumably no height data for this region as z for any overlay verts here defaults to 0
+    // This causes verts at positions between max and max + 1 to stretch into the sky
     void __declspec(naked) CheckOverlayBounds()
     {
         __asm {

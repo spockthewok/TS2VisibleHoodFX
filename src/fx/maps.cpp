@@ -261,10 +261,10 @@ namespace Maps
             {
                 // Adjust min/max bounds according to in-game view distance settings
                 const int *bounds = lotSkirt->GetBounds();
-                minX = static_cast<float>((bounds[0] - 1) * 10);
-                minY = static_cast<float>((bounds[1] - 1) * 10);
-                maxX = static_cast<float>((bounds[2] + 1) * 10);
-                maxY = static_cast<float>((bounds[3] + 1) * 10);
+                minX = static_cast<float>(bounds[0] * 10);
+                minY = static_cast<float>(bounds[1] * 10);
+                maxX = static_cast<float>(bounds[2] * 10);
+                maxY = static_cast<float>(bounds[3] * 10);
             }
         }
 

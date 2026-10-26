@@ -4,7 +4,7 @@ namespace nTSSG
 {
     const int *cLotSkirt::GetBounds() const
     {
-        return reinterpret_cast<const int *>(this + 0x3C);
+        return reinterpret_cast<const int *>(this + 0x2C);
     }
 
     float cLotSkirt::SeaLevel() const

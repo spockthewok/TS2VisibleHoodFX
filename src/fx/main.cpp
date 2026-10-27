@@ -3,6 +3,7 @@
 #include "config.h"
 #include "TS2/base.h"
 #include "TS2/cTSNHoodPropOccupant.h"
+#include <array>
 
 namespace
 {
@@ -20,10 +21,10 @@ namespace Effects
         if (!worldDB)
             return false;
 
-        float coords[3] = {0.0f, 0.0f, 0.0f};
+        std::array<float, 3> coords = {0.0f, 0.0f, 0.0f};
 
-        propOccupant->GetPosition(coords);
-        OffsetPositionToLot(coords);
+        propOccupant->GetPosition(coords.data());
+        OffsetPositionToLot(coords.data());
 
         float propX = coords[0];
         float propY = coords[1];

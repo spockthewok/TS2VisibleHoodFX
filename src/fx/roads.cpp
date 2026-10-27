@@ -2,12 +2,14 @@
 #include "fx/roads.h"
 #include "hooking.h"
 #include "TS2/base.h"
+#include "TS2/cTSSGSystem.h"
 #include <math.h>
 
 namespace
 {
     const DWORD CreateSceneGraphNodeForRoadOccupantWithModel_Exit_1 = 0xAD2113;
     const DWORD CreateSceneGraphNodeForRoadOccupantWithModel_Exit_2 = 0xAD2151;
+    const DWORD CreateSceneGraphNodeForRoadOccupantWithModel_Exit_3 = 0xAD2179;
     const DWORD CreateMergedRoadGeometry_Exit_1 = 0xAD55EE;
     const DWORD CreateMergedRoadGeometry_Exit_2 = 0xAD55F3;
 
@@ -58,26 +60,61 @@ namespace Roads
         }
     }
 
+    static bool IsBridgeInBounds(const float *coords)
+    {
+        nTSSG::cTSSGSystem *system = *reinterpret_cast<nTSSG::cTSSGSystem **>(0x1478F10);
+        nTSSG::cLotSkirt *lotSkirt = system->LotSkirt();
+
+        if (!lotSkirt)
+            return true;
+
+        const int *bounds = lotSkirt->GetBounds();
+
+        float minX = static_cast<float>(bounds[0] * 10);
+        float minY = static_cast<float>(bounds[1] * 10);
+        float maxX = static_cast<float>(bounds[2] * 10);
+        float maxY = static_cast<float>(bounds[3] * 10);
+        float currX = coords[0];
+        float currY = coords[1];
+
+        if (currX < minX || currY < minY || currX > maxX || currY > maxY)
+            return false;
+
+        return true;
+    }
+
     // cNHoodOccupantManager::CreateSceneGraphNodeForRoadOccupantWithModel
     // Translates bridge positioning to match world coordinates in lot view
     // Game uses same approach for props and flora
+    // Skips adding bridge piece if it lies outside current view distance bounds
+    // We check bounds before translation so coords are still in range of (0-nhoodSize)
     void __declspec(naked) TranslateBridgesToLot()
     {
         __asm {
             mov [esp+0x54],eax
-            pushad
-            mov edx,[esp+0x24] // cNHoodOccupantManager object
+            mov edx,[esp+0x4] // cNHoodOccupantManager object
             mov al,[edx+0xC1]
             test al,al
-            jnz LAB_Exit
+            jnz LAB_Continue
+            pushad
+            lea eax,[esp+0x6C]
+            push eax
+            call IsBridgeInBounds
+            add esp,0x4
+            test al,al
+            popad
+            jz LAB_Skip
+            pushad
             lea eax,[esp+0x6C]
             push eax
             call OffsetPositionToLot
             add esp,0x4
-        LAB_Exit:
             popad
+        LAB_Continue:
             mov edx,[ecx]
             jmp CreateSceneGraphNodeForRoadOccupantWithModel_Exit_1
+        LAB_Skip:
+            jmp CreateSceneGraphNodeForRoadOccupantWithModel_Exit_3
         }
     }
 

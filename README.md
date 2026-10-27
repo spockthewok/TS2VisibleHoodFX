@@ -8,24 +8,14 @@ Allows neighbourhood-exclusive details such as bridges, particle effects, and de
 
 ## Requirements
 - The Sims 2: Ultimate Collection <ins>**OR**</ins> The Sims 2 disc version with all EPs and SPs.
+
 - [Sims2RPC](https://modthesims.info/d/648220/sims2rpc-modded-sims-2-launcher-for-mansion-and-garden.html) <ins>**OR**</ins>
 [Ultimate ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader).
 
 ## Known Issues
 - Decals that overlap the current lot bounds will be cut off.
 
-Several effects require something known as an 'effect map' to be positioned correctly in the world. The lot skirt lacks this, meaning these
-effects will spawn either in the sky, or directly on the current lot. To prevent this, the following effects have been blacklisted from appearing
-in lot view:
-
-- Gondolas
-- Sailboats
-- Birds
-- Ducks
-- Swans
-- Ocean surfs
-
-See the [Configuration](#configuration) section for more information on blacklisting effects.
+- Decals may have square holes appear in them &mdash; this is caused by the depth testing/camera clipping formula the game uses.
 
 ## Installation
 ### <ins>Plugin</ins>
@@ -67,29 +57,50 @@ you choose depends on which of these mods you use:
 > [Improved Shaders](https://www.tumblr.com/christaskyy/821768821608169472/ts2-improved-shaders).
 
 ## Configuration
+### <ins>Blacklist</ins>
 The included `TS2VisibleHoodFX.ini` file contains all of the effects blacklisted from appearing in lot view. Effects can be blacklisted by adding them to the
 config file and vice versa.
+
+The blacklist is split into two sections:
+- <ins>**Global**</ins>: Prevents effects being created anywhere in lot view.
+
+- <ins>**Lots**</ins>: Prevents effects being created within the boundaries of the current lot. For example, if you add the musical notes effect to the lot blacklist
+  and place it at Lots A and B in-game, only the effect over Lot B will be visible while playing Lot A etc.
 
 Each effect you wish to blacklist should be on a separate line &mdash; an example of the correct structure can be seen below:
 
 ```
-[Blacklist]
+[Global]
+effect1 = nhood_object1_name
+effect2 = nhood_object2_name
+effect3 = nhood_object3_name
+
+[Lots]
 effect1 = nhood_object1_name
 effect2 = nhood_object2_name
 effect3 = nhood_object3_name
 ```
 
+To blacklist no effects, simply leave the sections empty:
+
+```
+[Global]
+
+[Lots]
+```
+
 > [!NOTE]
-> The name of the neighbourhood object that creates the effect should be added to the blacklist, rather than the name of the effect itself.
+> The name of the neighbourhood object that creates the effect should be added to the blacklists, rather than the name of the effect itself.
+>
+> For a list of all of the effect objects in the vanilla game, see [here](https://github.com/spockthewok/TS2VisibleHoodFX/blob/main/EFFECTS.md).
 
-The plugin falls back to a default built-in blacklist if either the config file is missing, or the config file doesn't contain the `[Blacklist]` section.
-To blacklist no effects, simply remove all of the entries listed under `[Blacklist]`, like so:
+### <ins>Other Options</ins>
+- `waterSparkles`: Enables/disables the neighbourhood water sparkle effect in lot view.
 
-```
-[Blacklist]
-```
+  *Default value = false*
+- `lotBridges`: Enables/disables neighbourhood bridges in lot view.
 
-For a list of all of the effects in the vanilla game, see [here](https://github.com/spockthewok/TS2VisibleHoodFX/blob/main/EFFECTS.md).
+  *Default value = true*
 
 ## Recommended Mods
 [No Neighbourhood Effect Rocks](https://mechemik.tumblr.com/post/76558980499/hey-guys-i-bring-for-you-a-small-little-fix) by Chemic &mdash; hides the unnecessary

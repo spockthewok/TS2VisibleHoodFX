@@ -2,7 +2,7 @@
 #include "headers.h"
 #include "config.h"
 #include "TS2/base.h"
-#include "TS2/cTSNHoodPropOccupant.h"
+#include "TS2/cTSNHoodOccupant.h"
 #include <array>
 
 namespace
@@ -14,7 +14,7 @@ namespace
 // This is the main driver for activating neighbourhood effects in lot view
 namespace Effects
 {
-    static bool IsOccupantInLotBounds(cTSNHoodPropOccupant *propOccupant)
+    static bool IsOccupantInLotBounds(cTSNHoodOccupant *propOccupant)
     {
         nTSWorld::cWorldDB *worldDB = TS::WorldDB();
 
@@ -37,7 +37,7 @@ namespace Effects
         return false;
     }
 
-    static bool IsBlacklistedEffect(cTSNHoodPropOccupant *propOccupant, const char *currProp)
+    static bool IsBlacklistedEffect(cTSNHoodOccupant *propOccupant, const char *currProp)
     {
         if (!propOccupant || !currProp)
             return true;

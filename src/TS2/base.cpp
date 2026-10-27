@@ -19,4 +19,5 @@ namespace TS
     GetGameStateController GameStateController = reinterpret_cast<GetGameStateController>(0x799B65);
 }
 
+GetIsOccupantInBounds IsOccupantInBounds = reinterpret_cast<GetIsOccupantInBounds>(0xAD0280);
 DoOffsetPositionToLot OffsetPositionToLot = reinterpret_cast<DoOffsetPositionToLot>(0xAD0460);

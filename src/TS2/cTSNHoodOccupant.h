@@ -1,6 +1,6 @@
 #pragma once
 
-class cTSNHoodPropOccupant
+class cTSNHoodOccupant
 {
 public:
     void GetPosition(float *coords);

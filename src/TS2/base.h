@@ -2,6 +2,7 @@
 #include "TS2/cTSGlobals.h"
 #include "TS2/cWorldDB.h"
 #include "TS2/cTSGameStateController.h"
+#include "TS2/cTSNHoodOccupant.h"
 #include "TS2/cLotSkirt.h"
 
 namespace Module
@@ -25,6 +26,9 @@ namespace TS
     using GetGameStateController = cTSGameStateController *(__cdecl *)();
     extern GetGameStateController GameStateController;
 }
+
+using GetIsOccupantInBounds = bool(__cdecl *)(cTSNHoodOccupant *, int *, bool);
+extern GetIsOccupantInBounds IsOccupantInBounds;
 
 using DoOffsetPositionToLot = void(__cdecl *)(float *);
 extern DoOffsetPositionToLot OffsetPositionToLot;

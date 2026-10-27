@@ -3,6 +3,7 @@
 #include "hooking.h"
 #include "TS2/base.h"
 #include "TS2/cTSSGSystem.h"
+#include "TS2/cTSNHoodOccupant.h"
 #include <math.h>
 
 namespace
@@ -60,27 +61,17 @@ namespace Roads
         }
     }
 
-    static bool IsBridgeInBounds(const float *coords)
+    static bool IsBridgeInBounds(cTSNHoodOccupant *roadOccupant)
     {
         nTSSG::cTSSGSystem *system = *reinterpret_cast<nTSSG::cTSSGSystem **>(0x1478F10);
         nTSSG::cLotSkirt *lotSkirt = system->LotSkirt();
 
-        if (!lotSkirt)
-            return true;
-
-        const int *bounds = lotSkirt->GetBounds();
-
-        float minX = static_cast<float>(bounds[0] * 10);
-        float minY = static_cast<float>(bounds[1] * 10);
-        float maxX = static_cast<float>(bounds[2] * 10);
-        float maxY = static_cast<float>(bounds[3] * 10);
-        float currX = coords[0];
-        float currY = coords[1];
-
-        if (currX < minX || currY < minY || currX > maxX || currY > maxY)
+        if (!roadOccupant || !lotSkirt)
             return false;
 
-        return true;
+        int *bounds = const_cast<int *>(lotSkirt->GetBounds());
+
+        return IsOccupantInBounds(roadOccupant - 0x98, bounds, false);
     }
 
     // cNHoodOccupantManager::CreateSceneGraphNodeForRoadOccupantWithModel
@@ -97,8 +88,7 @@ namespace Roads
             test al,al
             jnz LAB_Continue
             pushad
-            lea eax,[esp+0x6C]
-            push eax
+            push edi
             call IsBridgeInBounds
             add esp,0x4
             test al,al

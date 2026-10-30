@@ -14,7 +14,7 @@ namespace
 // This is the main driver for activating neighbourhood effects in lot view
 namespace Effects
 {
-    static bool IsOccupantInLotBounds(cTSNHoodOccupant *propOccupant)
+    static bool IsOccupantInLotBounds(cTSNHoodPropOccupant *propOccupant)
     {
         nTSWorld::cWorldDB *worldDB = TS::WorldDB();
 
@@ -28,16 +28,15 @@ namespace Effects
 
         float propX = coords[0];
         float propY = coords[1];
-        float lotX = worldDB->LotSizeX();
-        float lotY = worldDB->LotSizeY();
+        float minX = worldDB->MinX();
+        float minY = worldDB->MinY();
+        float maxX = worldDB->MaxX();
+        float maxY = worldDB->MaxY();
 
-        if ((propX >= 0 && propX <= lotX) && (propY >= 0 && propY <= lotY))
-            return true;
-
-        return false;
+        return ((propX >= minX && propX <= maxX) && (propY >= minY && propY <= maxY));
     }
 
-    static bool IsBlacklistedEffect(cTSNHoodOccupant *propOccupant, const char *currProp)
+    static bool IsBlacklistedEffect(cTSNHoodPropOccupant *propOccupant, const char *currProp)
     {
         if (!propOccupant || !currProp)
             return true;

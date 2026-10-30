@@ -30,7 +30,7 @@ namespace Roads
     // Two push instructions moved before jump to account for this (preserves stack layout)
     void AllowBridgesInLot()
     {
-        Hooking::WriteToMemory((DWORD)(0x6D54A6 + Module::base), roadSkip, sizeof(roadSkip));
+        Hooking::WriteToMemory((0x6D54A6 + Module::base), roadSkip, sizeof(roadSkip));
     }
 
     // cNHoodOccupantManager::CreateMergedRoadGeometry
@@ -39,9 +39,9 @@ namespace Roads
     void PreserveOccupantManager()
     {
         // MOV ESI,[ESI+0x64] -> MOV ECX,[ESI+0x64]
-        Hooking::WriteToMemory((DWORD)(0x6D559F + Module::base), &ecxReg[0], sizeof(ecxReg[0]));
+        Hooking::WriteToMemory((0x6D559F + Module::base), &ecxReg[0], sizeof(ecxReg[0]));
         // PUSH ESI -> PUSH ECX
-        Hooking::WriteToMemory((DWORD)(0x6D55A6 + Module::base), &ecxReg[1], sizeof(ecxReg[1]));
+        Hooking::WriteToMemory((0x6D55A6 + Module::base), &ecxReg[1], sizeof(ecxReg[1]));
     }
 
     // cNHoodOccupantManager::CreateMergedRoadGeometry
@@ -61,7 +61,7 @@ namespace Roads
         }
     }
 
-    static bool IsBridgeInBounds(cTSNHoodOccupant *roadOccupant)
+    static bool IsBridgeInBounds(cTSNHoodRoadOccupantWithModel *roadOccupant)
     {
         nTSSG::cTSSGSystem *system = *reinterpret_cast<nTSSG::cTSSGSystem **>(0x1478F10);
         nTSSG::cLotSkirt *lotSkirt = system->LotSkirt();

@@ -268,10 +268,7 @@ namespace Maps
             }
         }
 
-        if (currX <= minX || currY <= minY || currX >= maxX || currY >= maxY)
-            return false;
-
-        return true;
+        return (currX > minX || currY > minY || currX < maxX || currY < maxY);
     }
 
     // cTSMetaParticlesEffect::DoHeightBasedEmit

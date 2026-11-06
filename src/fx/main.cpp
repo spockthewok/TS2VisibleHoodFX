@@ -33,7 +33,7 @@ namespace Effects
         float maxX = worldDB->MaxX();
         float maxY = worldDB->MaxY();
 
-        return ((propX >= minX && propX <= maxX) && (propY >= minY && propY <= maxY));
+        return (propX >= minX && propX <= maxX) && (propY >= minY && propY <= maxY);
     }
 
     static bool IsBlacklistedEffect(cTSNHoodPropOccupant *propOccupant, const char *currProp)

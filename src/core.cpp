@@ -15,9 +15,7 @@ namespace Core
         Hooking::MakeJMP((BYTE *)(0x6D3B73 + Module::base), (DWORD)Effects::CreateHoodFXInLot, 6);
 
         // Decals
-        Hooking::MakeJMP((BYTE *)(0x684A35 + Module::base), (DWORD)Decals::GetLotSkirtOverlayManager, 6);
         Hooking::MakeJMP((BYTE *)(0xC1C317 + Module::base), (DWORD)Decals::FixDecalOverlayManager, 6);
-        Hooking::MakeJMP((BYTE *)(0x6DA612 + Module::base), (DWORD)Decals::ResetOverlayManager, 6);
         Hooking::MakeJMP((BYTE *)(0x769D73 + Module::base), (DWORD)Decals::PreventCullingDecals, 6);
         Hooking::MakeJMP((BYTE *)(0x766AB6 + Module::base), (DWORD)Decals::IncreaseOverlayBoundingBox, 7);
         Hooking::MakeJMP((BYTE *)(0x7677B5 + Module::base), (DWORD)Decals::GetCurrentMaterial, 6);

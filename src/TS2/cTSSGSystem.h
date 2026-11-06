@@ -10,5 +10,7 @@ namespace nTSSG
         // Actual return type is cTerrain object
         // We don't use any cTerrain methods, so no point creating skeleton class
         void *Terrain();
+        // Real return type is cTSOverlayManager
+        void *OverlayManager(int renderType);
     };
 }

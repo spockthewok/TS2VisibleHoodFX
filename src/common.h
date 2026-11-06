@@ -3,6 +3,8 @@
 
 namespace Common
 {
+    extern bool inLot;
+
     template <typename Fn, typename T>
     Fn GetVTableFn(T *object, const DWORD offset)
     {
@@ -14,4 +16,5 @@ namespace Common
 
     float GetNHoodSizeX();
     float GetNHoodSizeY();
+    bool IsInLot();
 }

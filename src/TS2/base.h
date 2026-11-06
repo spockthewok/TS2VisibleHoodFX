@@ -3,7 +3,6 @@
 #include "TS2/cWorldDB.h"
 #include "TS2/cTSGameStateController.h"
 #include "TS2/cTSNHoodOccupant.h"
-#include "TS2/cLotSkirt.h"
 
 namespace Module
 {

@@ -1,5 +1,4 @@
 #include "TS2/cTSGameStateController.h"
-#include "TS2/cTSLotInfo.h"
 #include "common.h"
 
 cTSLotInfo *cTSGameStateController::CurrentLotInfo()

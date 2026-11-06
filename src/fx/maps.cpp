@@ -23,40 +23,17 @@ namespace
     const DWORD UpdateParticlePhysicsTimeStep_Exit_2 = 0x10224DA;
 
     const char waterSparkleFX[] = "watersparklecontrol";
-    bool inLot = false;
 }
 
 // Fixes issues with effects tied to an effect map
 namespace Maps
 {
-    static bool IsInLot()
-    {
-        inLot = false;
-
-        cTSGameStateController *gameState = TS::GameStateController();
-        cTSLotInfo *lotInfo = gameState->CurrentLotInfo();
-
-        if (!lotInfo)
-            return inLot;
-
-        // Game thinks we're still in nhood at this point, so we check lot name to determine state
-        std::string lotName(*reinterpret_cast<const char **>(lotInfo + 0x1C));
-
-        // All lot names follow this structure: "NHoodID-LotX", where X is lot number
-        // CAS lots are either "CAS!" or "YACAS!"
-        // String will be blank if in neighbourhood
-        if (!lotName.empty() && lotName != "CAS!" && lotName != "YACAS!")
-            inLot = true;
-
-        return inLot;
-    }
-
     // Many lot effects are started before game sets lot state and switches to lot effect map
     // This causes them to be assigned to nhood effect map and therefore never appear in lot view
     static void *GetLotEffectMap(void *cITSEffectMap)
     {
         // Skip if already pointing to lot effect map vtable
-        if (*reinterpret_cast<DWORD *>(cITSEffectMap) == 0x12476B4 || !IsInLot())
+        if (*reinterpret_cast<DWORD *>(cITSEffectMap) == 0x12476B4 || !Common::IsInLot())
             return cITSEffectMap;
 
         nTSSG::cTSSGSystem *system = *reinterpret_cast<nTSSG::cTSSGSystem **>(0x1478F10);
@@ -89,7 +66,7 @@ namespace Maps
     {
         __asm {
             mov esi,ecx
-            cmp [inLot],0x0 // Particles init before meta particles, so var will already be set
+            cmp [Common::inLot],0x0 // Particles init first, so var will already be set
             je LAB_ContinueInit
             cmp [Config::waterSparkles],0x0
             jne LAB_ContinueInit
@@ -248,7 +225,7 @@ namespace Maps
         float maxX = Common::GetNHoodSizeX();
         float maxY = Common::GetNHoodSizeY();
 
-        if (inLot)
+        if (Common::inLot)
         {
             // Convert effect map coords (-640-640) to lot skirt coords (0-1280)
             currX += (maxX / 2);
@@ -268,7 +245,7 @@ namespace Maps
             }
         }
 
-        return ((currX > minX && currX < maxX) && (currY > minY && currY < maxY));
+        return (currX > minX && currX < maxX) && (currY > minY && currY < maxY);
     }
 
     // cTSMetaParticlesEffect::DoHeightBasedEmit

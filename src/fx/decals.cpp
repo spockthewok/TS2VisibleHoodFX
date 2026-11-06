@@ -7,8 +7,6 @@
 
 namespace
 {
-    const DWORD TurnOnDisplay_Exit = 0xA84A3B;
-    const DWORD CreateSceneGraphNodesAndGeometryBuilders_Exit = 0xADA618;
     const DWORD NodeBoundingBox_Exit = 0xB66AC4;
     const DWORD SetMaterialState_Exit_1 = 0xB677BB;
     const DWORD SetMaterialState_Exit_2 = 0xB67B28;
@@ -19,48 +17,38 @@ namespace
     const DWORD Init_Exit = 0x101C31D;
 
     const char decalMaterial[] = "overlaydecalmaterial";
-    void *overlayMgr = nullptr;
     char *matName = nullptr;
 }
 
 // Fixes quirks/bugs with decal effects in lot view
 namespace Decals
 {
-    // cLotSkirt::TurnOnDisplay
-    // Stashes pointer to overlay manager allocated to lot skirt
-    void __declspec(naked) GetLotSkirtOverlayManager()
+    static void *GetLotSkirtOverlayManager(void *cITSOverlayManager)
     {
-        __asm {
-            call [eax+0xB4]
-            mov [overlayMgr],eax
-            jmp TurnOnDisplay_Exit
-        }
+        if (!Common::inLot)
+            return cITSOverlayManager;
+
+        nTSSG::cTSSGSystem *system = *reinterpret_cast<nTSSG::cTSSGSystem **>(0x1478F10);
+
+        // Skip if decal is assigned to lot terrain overlay manager
+        if (cITSOverlayManager == system->OverlayManager(0))
+            return cITSOverlayManager;
+
+        return system->OverlayManager(8);
     }
 
     // cTSDecalEffect::Init
-    // Decals get assigned to the wrong overlay manager in lot view for some reason
+    // Game still tries to assign nhood decals to nhood overlay manager in lot view
     // This assigns them to the lot skirt overlay manager so they can actually be drawn
     void __declspec(naked) FixDecalOverlayManager()
     {
         __asm {
             mov ebx,[esi+0xC0]
-            cmp [overlayMgr],0x0
-            je LAB_Exit
-            mov eax,[overlayMgr]
+            push eax
+            call GetLotSkirtOverlayManager
+            add esp,0x4
         LAB_Exit:
             jmp Init_Exit
-        }
-    }
-
-    // cNHoodTerrain::CreateSceneGraphNodesAndGeometryBuilders
-    // Nullifies pointer to stashed lot skirt overlay manager when transitioning to neighbourhood
-    // Necessary or decals will still be attached to lot skirt manager and won't be drawn in nhood
-    void __declspec(naked) ResetOverlayManager()
-    {
-        __asm {
-            mov [overlayMgr],0x0
-            call [eax+0xB4]
-            jmp CreateSceneGraphNodesAndGeometryBuilders_Exit
         }
     }
 
@@ -84,10 +72,12 @@ namespace Decals
     void __declspec(naked) PreventCullingDecals()
     {
         __asm {
-            cmp [overlayMgr],0x0
-            je LAB_CheckCull
-            mov edx,[ebp+0x88]
-            cmp [overlayMgr],edx
+            push eax
+            push [ebp+0x88]
+            call GetLotSkirtOverlayManager
+            add esp,0x4
+            cmp eax,[ebp+0x88]
+            pop eax
             je LAB_AddToDisplayList
         LAB_CheckCull:
             test eax,eax
@@ -115,13 +105,13 @@ namespace Decals
 
     // cTerrainOverlayGeometryBase::SetMaterialState
     // Allows decals to receive proper colouring in lot view so they're not overly bright at night
-    // Checks caller and material name to avoid affecting lot shadows
+    // Checks call location and material name to avoid affecting shadows
     // Does similar test for nhood to replace constant _strnicmp check game was performing
     void __declspec(naked) ColourDecals()
     {
         __asm {
             mov ecx,[esp+0x4]
-            cmp [overlayMgr],0x0
+            cmp [Common::inLot],0x0
             jne LAB_InLot
             cmp dword ptr [ecx],0x123E8C4 // cNHoodTerrainOverlayGeometry vtable address
             je LAB_ColourDecal

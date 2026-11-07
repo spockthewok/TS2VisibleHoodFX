@@ -2,29 +2,29 @@
 
 namespace Hooking
 {
-    void WriteToMemory(DWORD addressToWrite, const BYTE *valueToWrite, int byteNum)
+    void WriteToMemory(DWORD addressToWrite, const BYTE *valueToWrite, size_t byteNum)
     {
-        unsigned long OldProtection;
+        DWORD oldProtection;
+        BYTE *pAddress = reinterpret_cast<BYTE *>(addressToWrite);
 
-        VirtualProtect((LPVOID)(addressToWrite), byteNum, PAGE_EXECUTE_READWRITE, &OldProtection);
-        memcpy((LPVOID)addressToWrite, valueToWrite, byteNum);
-        VirtualProtect((LPVOID)(addressToWrite), byteNum, OldProtection, NULL);
+        VirtualProtect(pAddress, byteNum, PAGE_EXECUTE_READWRITE, &oldProtection);
+        memcpy(pAddress, valueToWrite, byteNum);
+        VirtualProtect(pAddress, byteNum, oldProtection, NULL);
     }
 
-    void MakeJMP(BYTE *pAddress, DWORD dwJumpTo, DWORD dwLen)
+    void MakeJMP(DWORD jmpFrom, DWORD jmpTo, size_t byteNum)
     {
-        DWORD dwOldProtect, dwBkup, dwRelAddr;
+        DWORD oldProtection, backup, relAddr;
+        BYTE *pAddress = reinterpret_cast<BYTE *>(jmpFrom);
 
-        VirtualProtect(pAddress, dwLen, PAGE_EXECUTE_READWRITE, &dwOldProtect);
-        dwRelAddr = (DWORD)(dwJumpTo - (DWORD)pAddress) - 5;
+        VirtualProtect(pAddress, byteNum, PAGE_EXECUTE_READWRITE, &oldProtection);
+        relAddr = (jmpTo - jmpFrom) - 0x5;
         *pAddress = 0xE9;
-        *((DWORD *)(pAddress + 0x1)) = dwRelAddr;
+        *reinterpret_cast<DWORD *>(pAddress + 0x1) = relAddr;
 
-        for (DWORD x = 0x5; x < dwLen; x++)
+        for (DWORD x = 0x5; x < byteNum; ++x)
             *(pAddress + x) = 0x90;
 
-        VirtualProtect(pAddress, dwLen, dwOldProtect, &dwBkup);
-
-        return;
+        VirtualProtect(pAddress, byteNum, oldProtection, &backup);
     }
 }

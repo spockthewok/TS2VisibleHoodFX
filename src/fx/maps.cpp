@@ -307,15 +307,15 @@ namespace Maps
     void HandleNegativeValues()
     {
         // cTerrainGeometryData::Height
-        Hooking::MakeJMP((BYTE *)(0x77F1B0 + Module::base), (DWORD)ReplaceHeightChecks, 6);
+        Hooking::MakeJMP((0x77F1B0 + Module::base), (DWORD)ReplaceHeightChecks, 6);
 
         // cTSMetaParticlesEffect::DoHeightBasedEmit
-        Hooking::MakeJMP((BYTE *)(0xC1F4C7 + Module::base), (DWORD)ReplacePositionChecks1, 6);
+        Hooking::MakeJMP((0xC1F4C7 + Module::base), (DWORD)ReplacePositionChecks1, 6);
 
         // cTSMetaParticlesEffect::ApplyTerrainForces
-        Hooking::MakeJMP((BYTE *)(0xC2175B + Module::base), (DWORD)ReplacePositionChecks2, 6);
+        Hooking::MakeJMP((0xC2175B + Module::base), (DWORD)ReplacePositionChecks2, 6);
 
         // cTSMetaParticlesEffect::UpdateParticlePhysicsTimeStep
-        Hooking::MakeJMP((BYTE *)(0xC22458 + Module::base), (DWORD)ReplacePositionChecks3, 6);
+        Hooking::MakeJMP((0xC22458 + Module::base), (DWORD)ReplacePositionChecks3, 6);
     }
 }

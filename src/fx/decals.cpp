@@ -25,12 +25,9 @@ namespace Decals
 {
     static void *GetLotSkirtOverlayManager(void *cITSOverlayManager)
     {
-        if (!Common::inLot)
-            return cITSOverlayManager;
-
         nTSSG::cTSSGSystem *system = *reinterpret_cast<nTSSG::cTSSGSystem **>(0x1478F10);
 
-        // Skip if decal is assigned to lot terrain overlay manager
+        // Avoid reassigning if decal is assigned to lot terrain overlay manager
         if (cITSOverlayManager == system->OverlayManager(0))
             return cITSOverlayManager;
 
@@ -44,6 +41,8 @@ namespace Decals
     {
         __asm {
             mov ebx,[esi+0xC0]
+            cmp [Common::inLot],0x0
+            je LAB_Exit
             push eax
             call GetLotSkirtOverlayManager
             add esp,0x4
@@ -72,8 +71,10 @@ namespace Decals
     void __declspec(naked) PreventCullingDecals()
     {
         __asm {
+            cmp [Common::inLot],0x0
+            je LAB_CheckCull
             push eax
-            push [ebp+0x88]
+            push 0x0 // Push nullptr because we don't care about checking for lot terrain manager
             call GetLotSkirtOverlayManager
             add esp,0x4
             cmp eax,[ebp+0x88]
@@ -111,11 +112,8 @@ namespace Decals
     {
         __asm {
             mov ecx,[esp+0x4]
-            cmp [Common::inLot],0x0
-            jne LAB_InLot
             cmp dword ptr [ecx],0x123E8C4 // cNHoodTerrainOverlayGeometry vtable address
             je LAB_ColourDecal
-        LAB_InLot:
             cmp dword ptr [ecx],0x1245754 // cLotSkirtOverlayGeometry vtable address
             jne LAB_Skip
             pushad

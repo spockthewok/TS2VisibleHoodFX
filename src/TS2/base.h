@@ -1,4 +1,5 @@
 #pragma once
+#include "headers.h"
 #include "TS2/cTSGlobals.h"
 #include "TS2/cWorldDB.h"
 #include "TS2/cTSGameStateController.h"

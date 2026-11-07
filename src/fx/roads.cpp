@@ -78,7 +78,7 @@ namespace Roads
     // Translates bridge positioning to match world coordinates in lot view
     // Game uses same approach for props and flora
     // Skips adding bridge piece if it lies outside current view distance bounds
-    // We check bounds before translation so coords are still in range of (0-nhoodSize)
+    // We check bounds before translation so coords are still in range of 0-nhoodSize
     void __declspec(naked) TranslateBridgesToLot()
     {
         __asm {

@@ -4,6 +4,7 @@
 #include "TS2/base.h"
 #include "TS2/cTSSGSystem.h"
 #include <algorithm>
+#include <string>
 
 namespace
 {
@@ -23,30 +24,36 @@ namespace
 // Fixes quirks/bugs with decal effects in lot view
 namespace Decals
 {
-    static void *GetLotSkirtOverlayManager(void *cITSOverlayManager)
+    static void *GetCorrectOverlayManager(const char *currDecal)
     {
         nTSSG::cTSSGSystem *system = *reinterpret_cast<nTSSG::cTSSGSystem **>(0x1478F10);
 
-        // Avoid reassigning if decal is assigned to lot terrain overlay manager
-        if (cITSOverlayManager == system->OverlayManager(0))
-            return cITSOverlayManager;
+        if (!Common::IsInLot())
+            return system->OverlayManager(5); // Neighbourhood overlay manager
 
-        return system->OverlayManager(8);
+        if (currDecal)
+        {
+            std::string decalName(currDecal);
+
+            if (decalName.find("terraineditring") != std::string::npos)
+                return system->OverlayManager(0); // Lot terrain overlay manager
+        }
+
+        return system->OverlayManager(8); // Lot skirt overlay manager
     }
 
     // cTSDecalEffect::Init
-    // Game still tries to assign nhood decals to nhood overlay manager in lot view
-    // This assigns them to the lot skirt overlay manager so they can actually be drawn
+    // Game tries to assign nhood decals to nhood overlay manager in lot view on first load
+    // When switching between lots, all decals are assigned to lot terrain overlay manager
+    // This adds some sanity checks to ensure decals are assigned to the correct overlay managers
     void __declspec(naked) FixDecalOverlayManager()
     {
         __asm {
             mov ebx,[esi+0xC0]
-            cmp [Common::inLot],0x0
-            je LAB_Exit
-            push eax
-            call GetLotSkirtOverlayManager
+            mov eax,[esp+0x1C]
+            push [eax]
+            call GetCorrectOverlayManager
             add esp,0x4
-        LAB_Exit:
             jmp Init_Exit
         }
     }
@@ -74,8 +81,8 @@ namespace Decals
             cmp [Common::inLot],0x0
             je LAB_CheckCull
             push eax
-            push 0x0 // Push nullptr because we don't care about checking for lot terrain manager
-            call GetLotSkirtOverlayManager
+            push 0x0 // Push nullptr because we only want lot skirt overlay manager
+            call GetCorrectOverlayManager
             add esp,0x4
             cmp eax,[ebp+0x88]
             pop eax

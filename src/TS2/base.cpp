@@ -1,4 +1,5 @@
 #include "TS2/base.h"
+#include <cmath>
 
 namespace Module
 {
@@ -11,13 +12,28 @@ namespace Floats
     const float nhoodSize = 1280.0f;
 }
 
+namespace nGZNumerics
+{
+    void Normalize(cSlice *normal)
+    {
+        float invLen = 1.0f / std::sqrt((normal->z * normal->z) +
+                                        (normal->y * normal->y) +
+                                        (normal->x * normal->x));
+
+        normal->x *= invLen;
+        normal->y *= invLen;
+        normal->z *= invLen;
+    }
+}
+
 // Base addresses of various TS2 methods
 namespace TS
 {
-    GetGlobals Globals = reinterpret_cast<GetGlobals>(0x799A0D);
-    GetWorldDB WorldDB = reinterpret_cast<GetWorldDB>(0x799AB9);
-    GetGameStateController GameStateController = reinterpret_cast<GetGameStateController>(0x799B65);
+    GlobalsFn Globals = reinterpret_cast<GlobalsFn>(0x799A0D);
+    WorldDBFn WorldDB = reinterpret_cast<WorldDBFn>(0x799AB9);
+    GameStateControllerFn GameStateController = reinterpret_cast<GameStateControllerFn>(0x799B65);
 }
 
-GetIsOccupantInBounds IsOccupantInBounds = reinterpret_cast<GetIsOccupantInBounds>(0xAD0280);
-DoOffsetPositionToLot OffsetPositionToLot = reinterpret_cast<DoOffsetPositionToLot>(0xAD0460);
+IsOccupantInBoundsFn IsOccupantInBounds = reinterpret_cast<IsOccupantInBoundsFn>(0xAD0280);
+OffsetPositionToLotFn OffsetPositionToLot = reinterpret_cast<OffsetPositionToLotFn>(0xAD0460);
+lerpFn lerp = reinterpret_cast<lerpFn>(0xB7EFB0);

@@ -2,10 +2,9 @@
 #include "hooking.h"
 #include "config.h"
 #include "common.h"
-#include "TS2/base.h"
 #include "TS2/cTSSGSystem.h"
-#include "TS2/cTSNHoodTerrain.h"
-#include <array>
+#include "TS2/cNHoodTerrain.h"
+#include "TS2/cTerrainGeometryData.h"
 #include <cmath>
 
 namespace
@@ -129,88 +128,45 @@ namespace Maps
         return lotSkirt->SeaLevel();
     }
 
-    // This is a custom version of cLotSkirt::TranslateLotCoordsToNhoodCoords
-    static void TranslateEffectCoordsToNhoodCoords(std::array<float, 2> &coords)
-    {
-        nTSSG::cTSSGSystem *system = *reinterpret_cast<nTSSG::cTSSGSystem **>(0x1478F10);
-        nTSSG::cLotSkirt *lotSkirt = system->LotSkirt();
-
-        if (!lotSkirt)
-            return;
-
-        const UINT rotation = lotSkirt->GetRotation();
-        const float offsetX = static_cast<float>(lotSkirt->GetOffsetX() * 10);
-        const float offsetY = static_cast<float>(lotSkirt->GetOffsetY() * 10);
-        float currX = coords[0];
-        float currY = coords[1];
-
-        switch (rotation)
-        {
-        case 1:
-            currX = coords[1];
-            currY = -coords[0];
-            break;
-        case 2:
-            currX = -coords[0];
-            currY = -coords[1];
-            break;
-        case 3:
-            currX = -coords[1];
-            currY = coords[0];
-        }
-
-        coords[0] = offsetX + currX;
-        coords[1] = offsetY + currY;
-    }
-
-    static float GetHeightAtPosition(const float x, const float y)
-    {
-        cTSGlobals *globals = TS::Globals();
-        cTSGameStateController *gameState = TS::GameStateController();
-        cTSNHoodTerrain *nhoodTerrain = globals->NeighborhoodTerrain();
-        cTSLotInfo *lotInfo = gameState->CurrentLotInfo();
-
-        if (!nhoodTerrain || !lotInfo)
-            return Floats::nhoodSize; // Return large value so later checks fail
-
-        std::array<float, 2> coords = {x, y};
-
-        TranslateEffectCoordsToNhoodCoords(coords);
-
-        float terrainHeight = nhoodTerrain->GetTerrainHeight(coords[0], coords[1]);
-        float offsetZ = lotInfo->NHoodToLotHeightOffset();
-
-        if (std::isnan(terrainHeight) || std::isinf(terrainHeight) || terrainHeight == 0)
-            return Floats::nhoodSize;
-
-        // Game will subtract water level from this value
-        // Because lot water level is negative, calculation becomes height + lotWaterLvl
-        // Equivalent to terrainHeight - nhoodWaterLvl, which is what nhood uses to get height
-        return terrainHeight - offsetZ;
-    }
-
     // cTerrainGeometryData::Height
     // Lot effect map only has heightmap data for terrain within bounds of current lot
     // Height at coords outside of lot bounds will always be 0, breaking collision detection
-    // We completely replace the method with our own function to get nhood heightmap data instead
-    // Method prologue and epilogue is recreated to preserve stack layout
-    static void __declspec(naked) ReplaceHeightChecks()
+    // We completely replace the method with our own which gets nhood heightmap data instead
+    // Only purpose of the dummy param is to preserve stack layout
+    static float __fastcall HeightHook(nTSSG::cTerrainGeometryData *terrainGeomData, void *dummy,
+                                       float x, float y)
+    {
+        return terrainGeomData->Height(x, y);
+    }
+
+    static void CopyNormalData(const cSlice *first, const cSlice *last)
+    {
+        nTSSG::nhoodTerrain.normals.assign(first, last);
+    }
+
+    // cNHoodTerrain::UpdateTerrainNormals
+    // Preserves a copy of the nhood's normal data for later use
+    // Would love to get this from the object directly, but it's destroyed when loading a lot :/
+    void __declspec(naked) GetNHoodNormalData()
     {
         __asm {
-            push ebx
-            push ebp
-            push esi
-            push edi
-            push [esp+0x18] // y
-            push [esp+0x18] // x
-            call GetHeightAtPosition
+            lea ebx,[edi+0x88]
+            push [ebx+0x4]
+            push [ebx]
+            call CopyNormalData
             add esp,0x8
             pop edi
-            pop esi
-            pop ebp
             pop ebx
-            ret 0x8
+            ret 0x4
         }
+    }
+
+    // cTerrainGeometryData::Normal
+    // Like with Height, we replace this method with our own that uses nhood normal data
+    static cSlice *__fastcall NormalHook(nTSSG::cTerrainGeometryData *terrainGeomData, void *dummy,
+                                         cSlice *normal, float x, float y)
+    {
+        return terrainGeomData->Normal(normal, x, y);
     }
 
     static bool IsValidPosition(const float x, const float y)
@@ -218,10 +174,8 @@ namespace Maps
         if (std::isnan(x) || std::isnan(y))
             return false;
 
-        float currX = x;
-        float currY = y;
-        float minX = 0.0f;
-        float minY = 0.0f;
+        float currX = x, currY = y;
+        float minX = 0.0f, minY = 0.0f;
         float maxX = Common::GetNHoodSizeX();
         float maxY = Common::GetNHoodSizeY();
 
@@ -307,7 +261,10 @@ namespace Maps
     void HandleNegativeValues()
     {
         // cTerrainGeometryData::Height
-        Hooking::MakeJMP((0x77F1B0 + Module::base), (DWORD)ReplaceHeightChecks, 6);
+        Hooking::MakeJMP((0x77F1B0 + Module::base), (DWORD)HeightHook, 6);
+
+        // cTerrainGeometryData::Normal
+        Hooking::MakeJMP((0x77FA90 + Module::base), (DWORD)NormalHook, 9);
 
         // cTSMetaParticlesEffect::DoHeightBasedEmit
         Hooking::MakeJMP((0xC1F4C7 + Module::base), (DWORD)ReplacePositionChecks1, 6);

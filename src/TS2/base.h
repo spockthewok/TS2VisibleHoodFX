@@ -5,6 +5,11 @@
 #include "TS2/cTSGameStateController.h"
 #include "TS2/cTSNHoodOccupant.h"
 
+struct cSlice
+{
+    float x, y, z;
+};
+
 namespace Module
 {
     extern DWORD base;
@@ -15,20 +20,28 @@ namespace Floats
     extern const float nhoodSize;
 }
 
-namespace TS
+namespace nGZNumerics
 {
-    using GetGlobals = cTSGlobals *(__cdecl *)();
-    extern GetGlobals Globals;
-
-    using GetWorldDB = nTSWorld::cWorldDB *(__cdecl *)();
-    extern GetWorldDB WorldDB;
-
-    using GetGameStateController = cTSGameStateController *(__cdecl *)();
-    extern GetGameStateController GameStateController;
+    void Normalize(cSlice *normal);
 }
 
-using GetIsOccupantInBounds = bool(__cdecl *)(cTSNHoodOccupant *, int *, bool);
-extern GetIsOccupantInBounds IsOccupantInBounds;
+namespace TS
+{
+    using GlobalsFn = cTSGlobals *(__cdecl *)();
+    extern GlobalsFn Globals;
 
-using DoOffsetPositionToLot = void(__cdecl *)(float *);
-extern DoOffsetPositionToLot OffsetPositionToLot;
+    using WorldDBFn = nTSWorld::cWorldDB *(__cdecl *)();
+    extern WorldDBFn WorldDB;
+
+    using GameStateControllerFn = cTSGameStateController *(__cdecl *)();
+    extern GameStateControllerFn GameStateController;
+}
+
+using IsOccupantInBoundsFn = bool(__cdecl *)(cTSNHoodOccupant *, int *, bool);
+extern IsOccupantInBoundsFn IsOccupantInBounds;
+
+using OffsetPositionToLotFn = void(__cdecl *)(float *);
+extern OffsetPositionToLotFn OffsetPositionToLot;
+
+using lerpFn = void(__cdecl *)(cSlice *, float, float, float, float, float, float, float);
+extern lerpFn lerp;

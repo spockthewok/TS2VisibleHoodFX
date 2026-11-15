@@ -1,7 +1,6 @@
 #define NOMINMAX
 #include "fx/decals.h"
 #include "common.h"
-#include "TS2/base.h"
 #include "TS2/cTSSGSystem.h"
 #include <algorithm>
 #include <string>

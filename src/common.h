@@ -1,5 +1,6 @@
 #pragma once
 #include "headers.h"
+#include <array>
 
 namespace Common
 {
@@ -17,4 +18,5 @@ namespace Common
     float GetNHoodSizeX();
     float GetNHoodSizeY();
     bool IsInLot();
+    void TranslateEffectCoordsToNHoodCoords(std::array<float, 2> &coords);
 }

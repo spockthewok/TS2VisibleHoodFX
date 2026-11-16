@@ -5,10 +5,12 @@
 #include "TS2/cTSGameStateController.h"
 #include "TS2/cTSNHoodOccupant.h"
 
-struct cSlice
+struct cVector
 {
     float x, y, z;
 };
+
+typedef cVector cSlice;
 
 namespace Module
 {

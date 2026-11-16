@@ -7,6 +7,6 @@ namespace Maps
     extern "C" void FixMetaParticleEffectMap();
     extern "C" void IncreaseLotBoundingRect();
     float GetRelativeWaterLevel();
-    extern "C" void GetNHoodNormalData();
+    extern "C" void GetNHoodHeightAndNormalData();
     void HandleNegativeValues();
 }

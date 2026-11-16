@@ -6,6 +6,7 @@ namespace nTSSG
 {
     struct cNHoodTerrain
     {
+        std::vector<cVector> heightMap;
         std::vector<cSlice> normals;
     };
 

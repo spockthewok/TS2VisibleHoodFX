@@ -28,7 +28,7 @@ namespace Core
         Hooking::MakeJMP((0xC21364 + Module::base), (DWORD)Maps::FixMetaParticleEffectMap, 5);
         Hooking::MakeJMP((0x77EBAE + Module::base), (DWORD)Maps::IncreaseLotBoundingRect, 5);
         Hooking::MakeJMP((0x77ECB0 + Module::base), (DWORD)Maps::GetRelativeWaterLevel, 6);
-        Hooking::MakeJMP((0x6D74E6 + Module::base), (DWORD)Maps::GetNHoodNormalData, 5);
+        Hooking::MakeJMP((0x6D74E6 + Module::base), (DWORD)Maps::GetNHoodHeightAndNormalData, 5);
         Maps::HandleNegativeValues();
 
         // Bridges

@@ -131,7 +131,7 @@ namespace Maps
     // cTerrainGeometryData::Height
     // Lot effect map only has heightmap data for terrain within bounds of current lot
     // Height at coords outside of lot bounds will always be 0, breaking collision detection
-    // We completely replace the method with our own which gets nhood heightmap data instead
+    // We completely replace the method with our own which uses nhood heightmap data instead
     // Only purpose of the dummy param is to preserve stack layout
     static float __fastcall HeightHook(nTSSG::cTerrainGeometryData *terrainGeomData, void *dummy,
                                        float x, float y)
@@ -139,22 +139,27 @@ namespace Maps
         return terrainGeomData->Height(x, y);
     }
 
-    static void CopyNormalData(const cSlice *first, const cSlice *last)
+    static void CopyNHoodData(const cVector *hFirst, const cVector *hLast,
+                              const cSlice *nFirst, const cSlice *nLast)
     {
-        nTSSG::nhoodTerrain.normals.assign(first, last);
+        nTSSG::nhoodTerrain.heightMap.assign(hFirst, hLast);
+        nTSSG::nhoodTerrain.normals.assign(nFirst, nLast);
     }
 
     // cNHoodTerrain::UpdateTerrainNormals
-    // Preserves a copy of the nhood's normal data for later use
-    // Would love to get this from the object directly, but it's destroyed when loading a lot :/
-    void __declspec(naked) GetNHoodNormalData()
+    // Preserves copies of the nhood's heightmap and normal data for later use
+    // Would love to get them from the object directly, but it's destroyed when loading a lot :/
+    void __declspec(naked) GetNHoodHeightAndNormalData()
     {
         __asm {
             lea ebx,[edi+0x88]
             push [ebx+0x4]
             push [ebx]
-            call CopyNormalData
-            add esp,0x8
+            lea ebx,[edi+0x7C]
+            push [ebx+0x4]
+            push [ebx]
+            call CopyNHoodData
+            add esp,0x10
             pop edi
             pop ebx
             ret 0x4

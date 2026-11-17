@@ -128,20 +128,12 @@ namespace Maps
         return lotSkirt->SeaLevel();
     }
 
-    // cTerrainGeometryData::Height
-    // Lot effect map only has heightmap data for terrain within bounds of current lot
-    // Height at coords outside of lot bounds will always be 0, breaking collision detection
-    // We completely replace the method with our own which uses nhood heightmap data instead
-    // Only purpose of the dummy param is to preserve stack layout
-    static float __fastcall HeightHook(nTSSG::cTerrainGeometryData *terrainGeomData, void *dummy,
-                                       float x, float y)
+    static void InitNHoodTerrain(const cVector *hFirst, const cVector *hLast,
+                                 const cSlice *nFirst, const cSlice *nLast)
     {
-        return terrainGeomData->Height(x, y);
-    }
-
-    static void CopyNHoodData(const cVector *hFirst, const cVector *hLast,
-                              const cSlice *nFirst, const cSlice *nLast)
-    {
+        nTSSG::nhoodTerrain.gridScale = 10.0f;
+        nTSSG::nhoodTerrain.gridWidth =
+            static_cast<int>(Common::GetNHoodSizeX() / nTSSG::nhoodTerrain.gridScale) + 1;
         nTSSG::nhoodTerrain.heightMap.assign(hFirst, hLast);
         nTSSG::nhoodTerrain.normals.assign(nFirst, nLast);
     }
@@ -158,12 +150,23 @@ namespace Maps
             lea ebx,[edi+0x7C]
             push [ebx+0x4]
             push [ebx]
-            call CopyNHoodData
+            call InitNHoodTerrain
             add esp,0x10
             pop edi
             pop ebx
             ret 0x4
         }
+    }
+
+    // cTerrainGeometryData::Height
+    // Lot effect map only has heightmap data for terrain within bounds of current lot
+    // Height at coords outside of lot bounds will always be 0, breaking collision detection
+    // We completely replace the method with our own which uses nhood heightmap data instead
+    // Only purpose of the dummy param is to preserve stack layout
+    static float __fastcall HeightHook(nTSSG::cTerrainGeometryData *terrainGeomData, void *dummy,
+                                       float x, float y)
+    {
+        return terrainGeomData->Height(x, y);
     }
 
     // cTerrainGeometryData::Normal
@@ -196,11 +199,11 @@ namespace Maps
             if (lotSkirt)
             {
                 // Adjust min/max bounds according to in-game view distance settings
-                const int *bounds = lotSkirt->GetBounds();
-                minX = static_cast<float>(bounds[0] * 10);
-                minY = static_cast<float>(bounds[1] * 10);
-                maxX = static_cast<float>(bounds[2] * 10);
-                maxY = static_cast<float>(bounds[3] * 10);
+                const cRZRect *bounds = lotSkirt->GetBounds();
+                minX = static_cast<float>(bounds->minX * 10);
+                minY = static_cast<float>(bounds->minY * 10);
+                maxX = static_cast<float>(bounds->maxX * 10);
+                maxY = static_cast<float>(bounds->maxY * 10);
             }
         }
 

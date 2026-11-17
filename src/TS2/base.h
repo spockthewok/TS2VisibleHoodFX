@@ -12,6 +12,16 @@ struct cVector
 
 typedef cVector cSlice;
 
+struct cQuaternion
+{
+    float x, y, z, w;
+};
+
+struct cRZRect
+{
+    int minX, minY, maxX, maxY;
+};
+
 namespace Module
 {
     extern DWORD base;
@@ -39,10 +49,10 @@ namespace TS
     extern GameStateControllerFn GameStateController;
 }
 
-using IsOccupantInBoundsFn = bool(__cdecl *)(cTSNHoodOccupant *, int *, bool);
+using IsOccupantInBoundsFn = bool(__cdecl *)(cTSNHoodOccupant *, cRZRect *, bool);
 extern IsOccupantInBoundsFn IsOccupantInBounds;
 
-using OffsetPositionToLotFn = void(__cdecl *)(float *);
+using OffsetPositionToLotFn = void(__cdecl *)(cVector *);
 extern OffsetPositionToLotFn OffsetPositionToLot;
 
 using lerpFn = void(__cdecl *)(cSlice *, float, float, float, float, float, float, float);

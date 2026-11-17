@@ -2,9 +2,9 @@
 
 namespace nTSSG
 {
-    const int *cLotSkirt::GetBounds() const
+    const cRZRect *cLotSkirt::GetBounds() const
     {
-        return reinterpret_cast<const int *>(this + 0x2C);
+        return reinterpret_cast<const cRZRect *>(this + 0x2C);
     }
 
     float cLotSkirt::SeaLevel() const

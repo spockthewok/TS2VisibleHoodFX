@@ -1,7 +1,6 @@
 #define _USE_MATH_DEFINES
 #include "fx/roads.h"
 #include "hooking.h"
-#include "TS2/base.h"
 #include "TS2/cTSSGSystem.h"
 #include "TS2/cTSNHoodOccupant.h"
 #include <math.h>
@@ -69,7 +68,7 @@ namespace Roads
         if (!roadOccupant || !lotSkirt)
             return false;
 
-        int *bounds = const_cast<int *>(lotSkirt->GetBounds());
+        cRZRect *bounds = const_cast<cRZRect *>(lotSkirt->GetBounds());
 
         return IsOccupantInBounds(roadOccupant - 0x98, bounds, false);
     }
@@ -110,31 +109,25 @@ namespace Roads
 
     // This does something similar to nGZNumerics::EulerToQuaternion used by props and flora
     // We need our own function as bridge orientation is already in quaternion form
-    static void SetRotation(float *cQuaternion, const UINT rotation)
+    static void SetRotation(cQuaternion *orientation, const UINT rotation)
     {
         float degrees = rotation * 90.0f;
         float radians = degrees * (M_PI / 180.0f);
 
-        // These vars are a bit unnecessary, but they help to reduce line length :/
-        float currX = cQuaternion[0];
-        float currY = cQuaternion[1];
-        float currZ = cQuaternion[2];
-        float currW = cQuaternion[3];
+        float currX = orientation->x;
+        float currY = orientation->y;
+        float currZ = orientation->z;
+        float currW = orientation->w;
 
         float rotX = 0.0f;
         float rotY = 0.0f;
         float rotZ = sinf(radians * 0.5f);
         float rotW = cosf(radians * 0.5f);
 
-        float x = (currX * rotW) + (currW * rotX) + (currZ * rotY) - (currY * rotZ);
-        float y = (currY * rotW) - (currZ * rotX) + (currW * rotY) + (currX * rotZ);
-        float z = (currZ * rotW) + (currY * rotX) - (currX * rotY) + (currW * rotZ);
-        float w = (currW * rotW) - (currX * rotX) - (currY * rotY) - (currZ * rotZ);
-
-        cQuaternion[0] = x;
-        cQuaternion[1] = y;
-        cQuaternion[2] = z;
-        cQuaternion[3] = w;
+        orientation->x = (currX * rotW) + (currW * rotX) + (currZ * rotY) - (currY * rotZ);
+        orientation->y = (currY * rotW) - (currZ * rotX) + (currW * rotY) + (currX * rotZ);
+        orientation->z = (currZ * rotW) + (currY * rotX) - (currX * rotY) + (currW * rotZ);
+        orientation->w = (currW * rotW) - (currX * rotX) - (currY * rotY) - (currZ * rotZ);
     }
 
     // cNHoodOccupantManager::CreateSceneGraphNodeForRoadOccupantWithModel

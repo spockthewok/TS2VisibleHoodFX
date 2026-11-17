@@ -21,23 +21,20 @@ namespace nTSSG
 
         Common::TranslateEffectCoordsToNHoodCoords(coords);
 
-        float gridScale = 10.0f; // Value taken from cNHoodTerrain object var
-        float currX = coords[0] / gridScale;
-        float currY = coords[1] / gridScale;
+        float currX = coords[0] / nhoodTerrain.gridScale;
+        float currY = coords[1] / nhoodTerrain.gridScale;
         // Game does slightly more involved floating-point maths for gridX/gridY conversion
         // Seems to just round towards 0, which a direct cast already does
         int gridX = static_cast<int>(currX);
         int gridY = static_cast<int>(currY);
-        int gridWidth = static_cast<int>(Common::GetNHoodSizeX() / gridScale) + 1;
         float tX = currX - static_cast<float>(gridX);
         float tY = currY - static_cast<float>(gridY);
 
         // I'm assuming the coord system is the same as a 2D array, where (0,0) is top left
-        // (0,0) would be bottom left with conventional bilinear interpolation
-        cVector h00 = nhoodTerrain.heightMap[gridX + (gridY * gridWidth)];
-        cVector h10 = nhoodTerrain.heightMap[(gridX + 1) + (gridY * gridWidth)];
-        cVector h01 = nhoodTerrain.heightMap[gridX + ((gridY + 1) * gridWidth)];
-        cVector h11 = nhoodTerrain.heightMap[(gridX + 1) + ((gridY + 1) * gridWidth)];
+        cVector h00 = nhoodTerrain.heightMap[gridX + (gridY * nhoodTerrain.gridWidth)];
+        cVector h10 = nhoodTerrain.heightMap[(gridX + 1) + (gridY * nhoodTerrain.gridWidth)];
+        cVector h01 = nhoodTerrain.heightMap[gridX + ((gridY + 1) * nhoodTerrain.gridWidth)];
+        cVector h11 = nhoodTerrain.heightMap[(gridX + 1) + ((gridY + 1) * nhoodTerrain.gridWidth)];
 
         float top = std::lerp(h00.z, h10.z, tX);
         float bottom = std::lerp(h01.z, h11.z, tX);
@@ -60,19 +57,17 @@ namespace nTSSG
 
         Common::TranslateEffectCoordsToNHoodCoords(coords);
 
-        float gridScale = 10.0f;
-        float currX = coords[0] / gridScale;
-        float currY = coords[1] / gridScale;
+        float currX = coords[0] / nhoodTerrain.gridScale;
+        float currY = coords[1] / nhoodTerrain.gridScale;
         int gridX = static_cast<int>(currX);
         int gridY = static_cast<int>(currY);
-        int gridWidth = static_cast<int>(Common::GetNHoodSizeX() / gridScale) + 1;
         float tX = currX - static_cast<float>(gridX);
         float tY = currY - static_cast<float>(gridY);
 
-        cSlice n00 = nhoodTerrain.normals[gridX + (gridY * gridWidth)];
-        cSlice n10 = nhoodTerrain.normals[(gridX + 1) + (gridY * gridWidth)];
-        cSlice n01 = nhoodTerrain.normals[gridX + ((gridY + 1) * gridWidth)];
-        cSlice n11 = nhoodTerrain.normals[(gridX + 1) + ((gridY + 1) * gridWidth)];
+        cSlice n00 = nhoodTerrain.normals[gridX + (gridY * nhoodTerrain.gridWidth)];
+        cSlice n10 = nhoodTerrain.normals[(gridX + 1) + (gridY * nhoodTerrain.gridWidth)];
+        cSlice n01 = nhoodTerrain.normals[gridX + ((gridY + 1) * nhoodTerrain.gridWidth)];
+        cSlice n11 = nhoodTerrain.normals[(gridX + 1) + ((gridY + 1) * nhoodTerrain.gridWidth)];
 
         cSlice top, bottom;
 

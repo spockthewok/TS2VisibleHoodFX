@@ -1,8 +1,6 @@
 #include "fx/main.h"
 #include "config.h"
 #include "TS2/base.h"
-#include "TS2/cTSNHoodOccupant.h"
-#include <array>
 
 namespace
 {
@@ -20,13 +18,13 @@ namespace Effects
         if (!worldDB)
             return false;
 
-        std::array<float, 3> coords = {0.0f, 0.0f, 0.0f};
+        cVector coords = {0.0f, 0.0f, 0.0f};
 
-        propOccupant->GetPosition(coords.data());
-        OffsetPositionToLot(coords.data());
+        propOccupant->GetPosition(&coords);
+        OffsetPositionToLot(&coords);
 
-        float propX = coords[0];
-        float propY = coords[1];
+        float propX = coords.x;
+        float propY = coords.y;
         float minX = worldDB->MinX();
         float minY = worldDB->MinY();
         float maxX = worldDB->MaxX();

@@ -1,9 +1,11 @@
 #pragma once
 
+struct cVector;
+
 class cTSNHoodOccupant
 {
 public:
-    void GetPosition(float *coords);
+    void GetPosition(cVector *coords);
 };
 
 // These are child classes of cTSNHoodOccupant

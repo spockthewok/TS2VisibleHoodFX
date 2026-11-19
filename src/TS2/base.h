@@ -1,40 +1,14 @@
 #pragma once
 #include "headers.h"
+#include "TS2/types.h"
 #include "TS2/cTSGlobals.h"
 #include "TS2/cWorldDB.h"
 #include "TS2/cTSGameStateController.h"
 #include "TS2/cTSNHoodOccupant.h"
 
-struct cVector
-{
-    float x, y, z;
-};
-
-typedef cVector cSlice;
-
-struct cQuaternion
-{
-    float x, y, z, w;
-};
-
-struct cRZRect
-{
-    int minX, minY, maxX, maxY;
-};
-
 namespace Module
 {
     extern DWORD base;
-}
-
-namespace Floats
-{
-    extern const float nhoodSize;
-}
-
-namespace nGZNumerics
-{
-    void Normalize(cSlice *normal);
 }
 
 namespace TS

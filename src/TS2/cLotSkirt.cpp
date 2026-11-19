@@ -7,11 +7,6 @@ namespace nTSSG
         return reinterpret_cast<const cRZRect *>(this + 0x2C);
     }
 
-    float cLotSkirt::SeaLevel() const
-    {
-        return *reinterpret_cast<const float *>(this + 0xB4);
-    }
-
     UINT cLotSkirt::GetRotation() const
     {
         return *reinterpret_cast<const UINT *>(this + 0xEC);

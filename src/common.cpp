@@ -14,7 +14,7 @@ namespace Common
         cTSNHoodTerrain *nhoodTerrain = globals->NeighborhoodTerrain();
 
         if (!nhoodTerrain)
-            return Floats::nhoodSize;
+            return 1280.0f; // All vanilla TS2 neighbourhoods are small SC4 maps of this size
 
         return *reinterpret_cast<float *>(nhoodTerrain + offset);
     }
@@ -52,7 +52,7 @@ namespace Common
     }
 
     // This is a custom version of cLotSkirt::TranslateLotCoordsToNHoodCoords
-    void TranslateEffectCoordsToNHoodCoords(std::array<float, 2> &coords)
+    void TranslateEffectCoordsToNHoodCoords(float &x, float &y)
     {
         nTSSG::cTSSGSystem *system = *reinterpret_cast<nTSSG::cTSSGSystem **>(0x1478F10);
         nTSSG::cLotSkirt *lotSkirt = system->LotSkirt();
@@ -63,25 +63,24 @@ namespace Common
         const UINT rotation = lotSkirt->GetRotation();
         const float offsetX = static_cast<float>(lotSkirt->GetOffsetX() * 10);
         const float offsetY = static_cast<float>(lotSkirt->GetOffsetY() * 10);
-        float currX = coords[0];
-        float currY = coords[1];
+        float currX = x, currY = y;
 
         switch (rotation)
         {
         case 1:
-            currX = coords[1];
-            currY = -coords[0];
+            currX = y;
+            currY = -x;
             break;
         case 2:
-            currX = -coords[0];
-            currY = -coords[1];
+            currX = -x;
+            currY = -y;
             break;
         case 3:
-            currX = -coords[1];
-            currY = coords[0];
+            currX = -y;
+            currY = x;
         }
 
-        coords[0] = offsetX + currX;
-        coords[1] = offsetY + currY;
+        x = offsetX + currX;
+        y = offsetY + currY;
     }
 }

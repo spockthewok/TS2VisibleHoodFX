@@ -1,5 +1,6 @@
 #pragma once
-#include "TS2/base.h"
+#include "headers.h"
+#include "TS2/types.h"
 
 namespace nTSSG
 {
@@ -8,7 +9,6 @@ namespace nTSSG
     public:
         // Not real methods belonging to this class
         const cRZRect *GetBounds() const;
-        float SeaLevel() const;
         UINT GetRotation() const;
         int GetOffsetX() const;
         int GetOffsetY() const;

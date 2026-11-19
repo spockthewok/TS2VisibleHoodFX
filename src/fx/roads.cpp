@@ -1,9 +1,10 @@
-#define _USE_MATH_DEFINES
 #include "fx/roads.h"
 #include "hooking.h"
+#include "TS2/base.h"
 #include "TS2/cTSSGSystem.h"
 #include "TS2/cTSNHoodOccupant.h"
-#include <math.h>
+#include <cmath>
+#include <numbers>
 
 namespace
 {
@@ -112,7 +113,7 @@ namespace Roads
     static void SetRotation(cQuaternion *orientation, const UINT rotation)
     {
         float degrees = rotation * 90.0f;
-        float radians = degrees * (M_PI / 180.0f);
+        float radians = degrees * (std::numbers::pi / 180.0f);
 
         float currX = orientation->x;
         float currY = orientation->y;

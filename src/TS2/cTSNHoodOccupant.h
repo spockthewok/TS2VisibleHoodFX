@@ -1,6 +1,5 @@
 #pragma once
-
-struct cVector;
+#include "TS2/types.h"
 
 class cTSNHoodOccupant
 {

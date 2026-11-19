@@ -1,6 +1,5 @@
 #include "TS2/cTSNHoodOccupant.h"
 #include "common.h"
-#include "TS2/base.h"
 
 void cTSNHoodOccupant::GetPosition(cVector *coords)
 {

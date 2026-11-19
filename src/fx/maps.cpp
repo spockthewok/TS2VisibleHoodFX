@@ -2,9 +2,9 @@
 #include "hooking.h"
 #include "config.h"
 #include "common.h"
+#include "TS2/base.h"
 #include "TS2/cTSSGSystem.h"
 #include "TS2/cNHoodTerrain.h"
-#include "TS2/cTerrainGeometryData.h"
 #include <cmath>
 
 namespace
@@ -97,37 +97,6 @@ namespace Maps
         }
     }
 
-    // cTerrainGeometryData::GetBoundingRect
-    // Effects can only exist within the bounds of their assigned effect map
-    // Nhood effect map bounds cover entire nhood, lot effect map only covers size of current lot
-    // This increases bounds of lot effect map so effects can appear anywhere in world
-    void __declspec(naked) IncreaseLotBoundingRect()
-    {
-        __asm {
-            call Common::GetNHoodSizeX
-            mov edx,[esp+0xC]
-            fstp [edx]
-            call Common::GetNHoodSizeY
-            jmp GetBoundingRect_Exit
-        }
-    }
-
-    // cTerrainGeometryData::WaterLevel
-    // Lot effect map always returns 0 for water level, regardless of lot height above sea level
-    // Game calculates sea level relative to lot z in cLotSkirt::ComputeLotSkirtParameters
-    // This returns the value of cLotSkirt var the result of said calculation was stored in
-    // Ensures water effects spawn at the correct height
-    float GetRelativeWaterLevel()
-    {
-        nTSSG::cTSSGSystem *system = *reinterpret_cast<nTSSG::cTSSGSystem **>(0x1478F10);
-        nTSSG::cLotSkirt *lotSkirt = system->LotSkirt();
-
-        if (!lotSkirt)
-            return 0.0f;
-
-        return lotSkirt->SeaLevel();
-    }
-
     static void InitNHoodTerrain(const cVector *hFirst, const cVector *hLast,
                                  const cSlice *nFirst, const cSlice *nLast)
     {
@@ -158,6 +127,21 @@ namespace Maps
         }
     }
 
+    // cTerrainGeometryData::GetBoundingRect
+    // Effects can only exist within the bounds of their assigned effect map
+    // Nhood effect map bounds cover entire nhood, lot effect map only covers size of current lot
+    // This increases bounds of lot effect map so effects can appear anywhere in world
+    void __declspec(naked) IncreaseLotBoundingRect()
+    {
+        __asm {
+            call Common::GetNHoodSizeX
+            mov edx,[esp+0xC]
+            fstp [edx]
+            call Common::GetNHoodSizeY
+            jmp GetBoundingRect_Exit
+        }
+    }
+
     // cTerrainGeometryData::Height
     // Lot effect map only has heightmap data for terrain within bounds of current lot
     // Height at coords outside of lot bounds will always be 0, breaking collision detection
@@ -177,6 +161,12 @@ namespace Maps
         return terrainGeomData->Normal(normal, x, y);
     }
 
+    // cTerrainGeometryData::WaterLevel
+    float __fastcall WaterLevelHook(nTSSG::cTerrainGeometryData *terrainGeomData)
+    {
+        return terrainGeomData->WaterLevel();
+    }
+
     static bool IsValidPosition(const float x, const float y)
     {
         if (std::isnan(x) || std::isnan(y))
@@ -189,9 +179,7 @@ namespace Maps
 
         if (Common::inLot)
         {
-            // Convert effect map coords (-640-640) to lot skirt coords (0-1280)
-            currX += (maxX / 2);
-            currY += (maxY / 2);
+            Common::TranslateEffectCoordsToNHoodCoords(currX, currY);
 
             nTSSG::cTSSGSystem *system = *reinterpret_cast<nTSSG::cTSSGSystem **>(0x1478F10);
             nTSSG::cLotSkirt *lotSkirt = system->LotSkirt();

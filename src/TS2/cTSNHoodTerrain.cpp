@@ -7,3 +7,10 @@ float cTSNHoodTerrain::GetTerrainHeight(float x, float y)
     auto vFunc = Common::GetVTableFn<Func>(this, 0x2C);
     return vFunc(this, x, y);
 }
+
+float cTSNHoodTerrain::SeaLevel()
+{
+    using Func = float(__thiscall *)(cTSNHoodTerrain *);
+    auto vFunc = Common::GetVTableFn<Func>(this, 0x40);
+    return vFunc(this);
+}

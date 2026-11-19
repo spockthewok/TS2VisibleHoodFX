@@ -1,5 +1,5 @@
 #pragma once
-#include "TS2/base.h"
+#include "TS2/types.h"
 #include <vector>
 
 namespace nTSSG

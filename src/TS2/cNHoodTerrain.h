@@ -2,17 +2,28 @@
 #include "TS2/types.h"
 #include <vector>
 
+// This is a custom singleton class based on the game's cNHoodTerrain class
+// We need our own independent version, as the game destroys its object when loading a lot
 namespace nTSSG
 {
-    // This is obviously really a class in the game's code
-    // We can't access the object in lot view, so we're just using our own basic struct
-    struct cNHoodTerrain
+    class cNHoodTerrain
     {
+    private:
         float gridScale;
         int gridWidth;
         std::vector<cVector> heightMap;
         std::vector<cSlice> normals;
-    };
 
-    extern cNHoodTerrain nhoodTerrain;
+        cNHoodTerrain();
+
+    public:
+        cNHoodTerrain(const cNHoodTerrain &) = delete;
+        cNHoodTerrain &operator=(const cNHoodTerrain &) = delete;
+
+        static cNHoodTerrain &NHoodTerrain();
+        void UpdateTerrainHeightmap(const cVector *first, const cVector *last);
+        void UpdateTerrainNormals(const cSlice *first, const cSlice *last);
+        float Height(float x, float y);
+        cSlice *Normal(cSlice *normal, float x, float y);
+    };
 }

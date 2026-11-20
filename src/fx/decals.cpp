@@ -6,14 +6,14 @@
 
 namespace
 {
-    const DWORD NodeBoundingBox_Exit = 0xB66AC4;
-    const DWORD SetMaterialState_Exit_1 = 0xB677BB;
-    const DWORD SetMaterialState_Exit_2 = 0xB67B28;
-    const DWORD SetMaterialState_Exit_3 = 0xB67C9D;
-    const DWORD AddSelfToDisplayList_Exit_1 = 0xB69D80;
-    const DWORD AddSelfToDisplayList_Exit_2 = 0xB69DA6;
-    const DWORD SetVertexDataStateAndDrawPart_Exit = 0xB6A201;
-    const DWORD Init_Exit = 0x101C31D;
+    constexpr DWORD NodeBoundingBox_Exit = 0xB66AC4;
+    constexpr DWORD SetMaterialState_Exit_1 = 0xB677BB;
+    constexpr DWORD SetMaterialState_Exit_2 = 0xB67B28;
+    constexpr DWORD SetMaterialState_Exit_3 = 0xB67C9D;
+    constexpr DWORD AddSelfToDisplayList_Exit_1 = 0xB69D80;
+    constexpr DWORD AddSelfToDisplayList_Exit_2 = 0xB69DA6;
+    constexpr DWORD SetVertexDataStateAndDrawPart_Exit = 0xB6A201;
+    constexpr DWORD Init_Exit = 0x101C31D;
 
     const char decalMaterial[] = "overlaydecalmaterial";
     char *matName = nullptr;

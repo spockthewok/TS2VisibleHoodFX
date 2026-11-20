@@ -4,8 +4,8 @@
 
 namespace
 {
-    const DWORD CreateSceneGraphNodeForPropOccupant_Exit_1 = 0xAD3B85;
-    const DWORD CreateSceneGraphNodeForPropOccupant_Exit_2 = 0xAD3BAA;
+    constexpr DWORD CreateSceneGraphNodeForPropOccupant_Exit_1 = 0xAD3B85;
+    constexpr DWORD CreateSceneGraphNodeForPropOccupant_Exit_2 = 0xAD3BAA;
 }
 
 // This is the main driver for activating neighbourhood effects in lot view

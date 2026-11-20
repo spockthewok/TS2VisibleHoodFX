@@ -8,11 +8,11 @@
 
 namespace
 {
-    const DWORD CreateSceneGraphNodeForRoadOccupantWithModel_Exit_1 = 0xAD2113;
-    const DWORD CreateSceneGraphNodeForRoadOccupantWithModel_Exit_2 = 0xAD2151;
-    const DWORD CreateSceneGraphNodeForRoadOccupantWithModel_Exit_3 = 0xAD2179;
-    const DWORD CreateMergedRoadGeometry_Exit_1 = 0xAD55EE;
-    const DWORD CreateMergedRoadGeometry_Exit_2 = 0xAD55F3;
+    constexpr DWORD CreateSceneGraphNodeForRoadOccupantWithModel_Exit_1 = 0xAD2113;
+    constexpr DWORD CreateSceneGraphNodeForRoadOccupantWithModel_Exit_2 = 0xAD2151;
+    constexpr DWORD CreateSceneGraphNodeForRoadOccupantWithModel_Exit_3 = 0xAD2179;
+    constexpr DWORD CreateMergedRoadGeometry_Exit_1 = 0xAD55EE;
+    constexpr DWORD CreateMergedRoadGeometry_Exit_2 = 0xAD55F3;
 
     const BYTE ecxReg[] = {0x4E, 0x51};
     const BYTE roadSkip[] = {0x55,                    // PUSH EBP

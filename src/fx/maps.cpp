@@ -9,19 +9,23 @@
 
 namespace
 {
-    const DWORD GetBoundingRect_Exit = 0xB7EBDE;
-    const DWORD Particles_Init_Exit = 0xFE2EBA;
-    const DWORD DoHeightBasedEmit_Exit_1 = 0x101F517;
-    const DWORD DoHeightBasedEmit_Exit_2 = 0x101F599;
-    const DWORD MetaParticles_Init_Exit_1 = 0x102129A;
-    const DWORD MetaParticles_Init_Exit_2 = 0x1021369;
-    const DWORD MetaParticles_Init_Exit_3 = 0x10213E3;
-    const DWORD ApplyTerrainForces_Exit_1 = 0x10217AB;
-    const DWORD ApplyTerrainForces_Exit_2 = 0x1021C3C;
-    const DWORD UpdateParticlePhysicsTimeStep_Exit_1 = 0x1022498;
-    const DWORD UpdateParticlePhysicsTimeStep_Exit_2 = 0x10224DA;
+    constexpr DWORD GetBoundingRect_Exit = 0xB7EBDE;
+    constexpr DWORD Particles_Init_Exit = 0xFE2EBA;
+    constexpr DWORD DoHeightBasedEmit_Exit_1 = 0x101F517;
+    constexpr DWORD DoHeightBasedEmit_Exit_2 = 0x101F599;
+    constexpr DWORD MetaParticles_Init_Exit_1 = 0x102129A;
+    constexpr DWORD MetaParticles_Init_Exit_2 = 0x1021369;
+    constexpr DWORD MetaParticles_Init_Exit_3 = 0x10213E3;
+    constexpr DWORD ApplyTerrainForces_Exit_1 = 0x10217AB;
+    constexpr DWORD ApplyTerrainForces_Exit_2 = 0x1021C3C;
+    constexpr DWORD UpdateParticlePhysicsTimeStep_Exit_1 = 0x1022498;
+    constexpr DWORD UpdateParticlePhysicsTimeStep_Exit_2 = 0x10224DA;
 
     const char waterSparkleFX[] = "watersparklecontrol";
+
+    // An effect map is essentially a pointer to a section of the terrain data classes' vtables
+    // Only 3 classes have an effect map: cNHoodTerrain, cTerrainGeometryData, and cTSTestMap
+    typedef uintptr_t *cITSEffectMap;
 }
 
 // Fixes issues with effects tied to an effect map
@@ -29,21 +33,22 @@ namespace Maps
 {
     // Many lot effects are started before game sets lot state and switches to lot effect map
     // This causes them to be assigned to nhood effect map and therefore never appear in lot view
-    static void *GetLotEffectMap(void *cITSEffectMap)
+    static cITSEffectMap *GetLotEffectMap(cITSEffectMap *effectMap)
     {
         // Skip if already pointing to lot effect map vtable
-        if (*reinterpret_cast<DWORD *>(cITSEffectMap) == 0x12476B4 || !Common::IsInLot())
-            return cITSEffectMap;
+        if (*reinterpret_cast<DWORD *>(effectMap) == 0x12476B4 || !Common::IsInLot())
+            return effectMap;
 
         nTSSG::cTSSGSystem *system = *reinterpret_cast<nTSSG::cTSSGSystem **>(0x1478F10);
         uintptr_t cTerrain = reinterpret_cast<uintptr_t>(system->Terrain());
 
         if (!cTerrain)
-            return cITSEffectMap;
+            return effectMap;
 
-        uintptr_t cTerrainGeometryData = *reinterpret_cast<uintptr_t *>(cTerrain + 0x40);
+        nTSSG::cTerrainGeometryData *terrainGeomData =
+            *reinterpret_cast<nTSSG::cTerrainGeometryData **>(cTerrain + 0x40);
 
-        return reinterpret_cast<void *>(cTerrainGeometryData + 0x8);
+        return reinterpret_cast<cITSEffectMap *>(terrainGeomData + 0x8);
     }
 
     // cTSParticlesEffect::Init
@@ -97,19 +102,18 @@ namespace Maps
         }
     }
 
-    static void InitNHoodTerrain(const cVector *hFirst, const cVector *hLast,
-                                 const cSlice *nFirst, const cSlice *nLast)
+    static void SetNHoodHeightAndNormalData(const cVector *hFirst, const cVector *hLast,
+                                            const cSlice *nFirst, const cSlice *nLast)
     {
-        nTSSG::nhoodTerrain.gridScale = 10.0f;
-        nTSSG::nhoodTerrain.gridWidth =
-            static_cast<int>(Common::GetNHoodSizeX() / nTSSG::nhoodTerrain.gridScale) + 1;
-        nTSSG::nhoodTerrain.heightMap.assign(hFirst, hLast);
-        nTSSG::nhoodTerrain.normals.assign(nFirst, nLast);
+        nTSSG::cNHoodTerrain &nhoodTerrain = nTSSG::cNHoodTerrain::NHoodTerrain();
+
+        nhoodTerrain.UpdateTerrainHeightmap(hFirst, hLast);
+        nhoodTerrain.UpdateTerrainNormals(nFirst, nLast);
     }
 
     // cNHoodTerrain::UpdateTerrainNormals
-    // Preserves copies of the nhood's heightmap and normal data for later use
-    // Would love to get them from the object directly, but it's destroyed when loading a lot :/
+    // Preserves copies of game's cNHoodTerrain heightmap and normal data for our custom object
+    // Would love to just use the original object, but it's destroyed when loading a lot :/
     void __declspec(naked) GetNHoodHeightAndNormalData()
     {
         __asm {
@@ -119,7 +123,7 @@ namespace Maps
             lea ebx,[edi+0x7C]
             push [ebx+0x4]
             push [ebx]
-            call InitNHoodTerrain
+            call SetNHoodHeightAndNormalData
             add esp,0x10
             pop edi
             pop ebx

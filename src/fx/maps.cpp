@@ -22,13 +22,12 @@ namespace
     constexpr DWORD UpdateParticlePhysicsTimeStep_Exit_2 = 0x10224DA;
 
     const char waterSparkleFX[] = "watersparklecontrol";
-
-    // An effect map is essentially a pointer to a section of the terrain data classes' vtables
-    // Only 3 classes have an effect map: cNHoodTerrain, cTerrainGeometryData, and cTSTestMap
-    typedef uintptr_t *cITSEffectMap;
+    struct cITSEffectMap;
 }
 
 // Fixes issues with effects tied to an effect map
+// An effect map is essentially a ptr to a group of methods belonging to the terrain data classes
+// Only 3 classes have an effect map: cNHoodTerrain, cTerrainGeometryData, and cTSTestMap
 namespace Maps
 {
     // Many lot effects are started before game sets lot state and switches to lot effect map

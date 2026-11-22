@@ -182,6 +182,9 @@ namespace Maps
 
         if (Common::inLot)
         {
+            if (Common::IsInLotBounds(x, y))
+                return true;
+
             Common::TranslateEffectCoordsToNHoodCoords(currX, currY);
 
             nTSSG::cTSSGSystem *system = *reinterpret_cast<nTSSG::cTSSGSystem **>(0x1478F10);

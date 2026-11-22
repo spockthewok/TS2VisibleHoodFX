@@ -26,7 +26,7 @@ effects to the blacklist.
 | Monorail | neighborhoodMonorailTracks |
 | Musical Notes | neighborhood_boulder_musical_notes |
 | Ocean Surf | neighborhood_boulder_surf |
-| Ocean Surf | neighborhood_boulder_twikkiSurf |
+| Ocean Surf | neighborhood_boulder_twikkiiSurf |
 | Orange Wildflowers | neighborhood_boulder_orangewildflowers |
 | Pigeons | neighborhood_boulder_pigeons |
 | Plane | neighborhood_boulder_airplanes |

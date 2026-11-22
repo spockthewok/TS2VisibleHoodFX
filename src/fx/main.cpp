@@ -1,5 +1,6 @@
 #include "fx/main.h"
 #include "config.h"
+#include "common.h"
 #include "TS2/base.h"
 
 namespace
@@ -11,28 +12,6 @@ namespace
 // This is the main driver for activating neighbourhood effects in lot view
 namespace Effects
 {
-    static bool IsOccupantInLotBounds(cTSNHoodPropOccupant *propOccupant)
-    {
-        nTSWorld::cWorldDB *worldDB = TS::WorldDB();
-
-        if (!worldDB)
-            return false;
-
-        cVector coords = {0.0f, 0.0f, 0.0f};
-
-        propOccupant->GetPosition(&coords);
-        OffsetPositionToLot(&coords);
-
-        float propX = coords.x;
-        float propY = coords.y;
-        float minX = worldDB->MinX();
-        float minY = worldDB->MinY();
-        float maxX = worldDB->MaxX();
-        float maxY = worldDB->MaxY();
-
-        return (propX >= minX && propX <= maxX) && (propY >= minY && propY <= maxY);
-    }
-
     static bool IsBlacklistedEffect(cTSNHoodPropOccupant *propOccupant, const char *currProp)
     {
         if (!propOccupant || !currProp)
@@ -41,7 +20,7 @@ namespace Effects
         std::string propName(currProp);
 
         if (Config::blacklistLots.contains(propName))
-            return IsOccupantInLotBounds(propOccupant);
+            return Common::IsInLotBounds(propOccupant);
 
         return Config::blacklistGlobal.contains(propName);
     }

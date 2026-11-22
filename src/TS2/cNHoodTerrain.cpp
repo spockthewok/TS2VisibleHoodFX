@@ -70,6 +70,7 @@ namespace nTSSG
         return terrainHeight - lotInfo->NHoodToLotHeightOffset();
     }
 
+    // Ghidra thinks this is a void method, but its callers try to dereference EAX after it returns
     cSlice *cNHoodTerrain::Normal(cSlice *normal, float x, float y)
     {
         float currX = x, currY = y;

@@ -51,28 +51,6 @@ namespace Common
         return inLot;
     }
 
-    bool IsInLotBounds(cTSNHoodOccupant *occupant)
-    {
-        nTSWorld::cWorldDB *worldDB = TS::WorldDB();
-
-        if (!worldDB)
-            return false;
-
-        cVector coords = {0.0f, 0.0f, 0.0f};
-
-        occupant->GetPosition(&coords);
-        OffsetPositionToLot(&coords);
-
-        float posX = coords.x;
-        float posY = coords.y;
-        float minX = worldDB->MinX();
-        float minY = worldDB->MinY();
-        float maxX = worldDB->MaxX();
-        float maxY = worldDB->MaxY();
-
-        return (posX >= minX && posX <= maxX) && (posY >= minY && posY <= maxY);
-    }
-
     bool IsInLotBounds(const float x, const float y)
     {
         nTSWorld::cWorldDB *worldDB = TS::WorldDB();
@@ -86,6 +64,16 @@ namespace Common
         float maxY = worldDB->MaxY();
 
         return (x >= minX && x <= maxX) && (y >= minY && y <= maxY);
+    }
+
+    bool IsInLotBounds(cTSNHoodOccupant *occupant)
+    {
+        cVector coords = {0.0f, 0.0f, 0.0f};
+
+        occupant->GetPosition(&coords);
+        OffsetPositionToLot(&coords);
+
+        return IsInLotBounds(coords.x, coords.y);
     }
 
     // This is a custom version of cLotSkirt::TranslateLotCoordsToNHoodCoords

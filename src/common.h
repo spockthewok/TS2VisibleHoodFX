@@ -18,7 +18,7 @@ namespace Common
     float GetNHoodSizeX();
     float GetNHoodSizeY();
     bool IsInLot();
-    bool IsInLotBounds(cTSNHoodOccupant *occupant);
     bool IsInLotBounds(const float x, const float y);
+    bool IsInLotBounds(cTSNHoodOccupant *occupant);
     void TranslateEffectCoordsToNHoodCoords(float &x, float &y);
 }

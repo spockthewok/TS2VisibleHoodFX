@@ -172,7 +172,7 @@ namespace Maps
 
     static bool IsValidPosition(const float x, const float y)
     {
-        if (std::isnan(x) || std::isnan(y))
+        if (!std::isfinite(x) || !std::isfinite(y))
             return false;
 
         float currX = x, currY = y;
@@ -182,7 +182,7 @@ namespace Maps
 
         if (Common::inLot)
         {
-            if (Common::IsInLotBounds(x, y))
+            if (Common::IsInLotBounds(currX, currY))
                 return true;
 
             Common::TranslateEffectCoordsToNHoodCoords(currX, currY);

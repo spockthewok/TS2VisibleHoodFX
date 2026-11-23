@@ -61,7 +61,7 @@ namespace nTSSG
         float bottom = std::lerp(h01.z, h11.z, tX);
         float terrainHeight = std::lerp(top, bottom, tY);
 
-        if (std::isnan(terrainHeight) || std::isinf(terrainHeight) || terrainHeight == 0)
+        if (!std::isfinite(terrainHeight) || terrainHeight == 0)
             return static_cast<float>(std::numeric_limits<UINT>::max());
 
         // Game will subtract water level from this value

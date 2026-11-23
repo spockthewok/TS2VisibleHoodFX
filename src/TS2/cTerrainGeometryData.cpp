@@ -16,7 +16,7 @@ namespace nTSSG
             return nhoodTerrain.Height(x, y);
         }
 
-        std::vector<cVector> heightMap = *reinterpret_cast<std::vector<cVector> *>(this + 0x8);
+        std::vector<cVector> &heightMap = *reinterpret_cast<std::vector<cVector> *>(this + 0x8);
         int gridWidth = *reinterpret_cast<int *>(this + 0x188);
         float gridScale = 1.0f / *reinterpret_cast<float *>(this + 0x184);
         float currX = x * gridScale;
@@ -35,7 +35,7 @@ namespace nTSSG
         float bottom = std::lerp(h01.z, h11.z, tX);
         float height = std::lerp(top, bottom, tY);
 
-        if (std::isnan(height) || std::isinf(height) || height == 0)
+        if (!std::isfinite(height) || height == 0)
             return static_cast<float>(std::numeric_limits<UINT>::max());
 
         return height;
@@ -49,7 +49,7 @@ namespace nTSSG
             return nhoodTerrain.Normal(normal, x, y);
         }
 
-        std::vector<cSlice> normals = *reinterpret_cast<std::vector<cSlice> *>(this + 0x14);
+        std::vector<cSlice> &normals = *reinterpret_cast<std::vector<cSlice> *>(this + 0x14);
         int gridWidth = *reinterpret_cast<int *>(this + 0x188);
         float gridScale = 1.0f / *reinterpret_cast<float *>(this + 0x184);
         float currX = x * gridScale;
